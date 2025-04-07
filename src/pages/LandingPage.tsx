@@ -4,9 +4,6 @@ import Layout from '../components/Layout';
 // Add logo import
 const siteLogo = "https://res.cloudinary.com/dujux4xcs/image/upload/v1743514302/Group_21_zddu9f.svg";
 
-// Add white logo import at the top with other constants
-const whiteLogoUrl = "https://res.cloudinary.com/dujux4xcs/image/upload/v1743598694/Group_21_1_j2gixb.svg";
-
 // Sample profile images from Unsplash
 const profileImages = [
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80',
