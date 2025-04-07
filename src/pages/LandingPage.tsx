@@ -1,8 +1,4 @@
-import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-
-// Add logo import
-const siteLogo = "https://res.cloudinary.com/dujux4xcs/image/upload/v1743514302/Group_21_zddu9f.svg";
 
 // Sample profile images from Unsplash
 const profileImages = [
@@ -44,30 +40,6 @@ const LandingPage = () => {
   return (
     <Layout>
       <div className="landing-page font-montserrat bg-[#F8FFE9]">
-        {/* Header with Logo */}
-        <header className="fixed w-full top-0 z-50 backdrop-blur-lg bg-white/70 border-b border-[#019B5F]/20">
-          <div className="max-w-7xl mx-auto px-6 py-3">
-            <div className="flex justify-between items-center">
-              <Link to="/" className="flex items-center">
-                <img src={siteLogo} alt="SurePlug" className="h-8 w-auto" />
-              </Link>
-              <nav className="hidden md:flex items-center space-x-8">
-                <Link to="/about" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
-                  About
-                </Link>
-                <Link to="/services" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
-                  Services
-                </Link>
-                <Link to="/contact" 
-                  className="bg-gradient-to-r from-[#019B5F] to-[#8FDB34] text-white px-6 py-2.5 rounded-full font-medium 
-                  hover:shadow-lg hover:shadow-[#019B5F]/30 transition-all duration-200 transform hover:-translate-y-0.5">
-                  Contact us
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </header>
-
         {/* Hero Section - Sleek Design */}
         <section className="pt-24 pb-12 relative overflow-hidden">
           {/* Background Elements - More subtle */}
