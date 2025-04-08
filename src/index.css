@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+/* Mobile menu styles */
+.mobile-menu-open .mobile-menu {
+  transform: translateY(0);
+}
+
+/* Add responsive font sizes */
+@layer base {
+  html {
+    font-size: 14px;
+    @screen sm {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Add responsive padding utility */
+@layer utilities {
+  .responsive-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+} 

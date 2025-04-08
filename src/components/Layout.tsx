@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 // Add logo imports
@@ -27,16 +28,31 @@ const socialIcons = {
 };
 
 const Layout = ({ children }: LayoutProps) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* Header - Made responsive */}
       <header className="fixed w-full top-0 z-50 backdrop-blur-lg bg-white/70 border-b border-[#019B5F]/20">
-        <div className="max-w-7xl mx-auto px-6 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
             <Link to="/" className="flex items-center">
-              <img src={siteLogo} alt="SurePlug" className="h-8 w-auto" />
+              <img 
+                src={siteLogo} 
+                alt="SurePlug" 
+                className="h-6 sm:h-8 w-auto" 
+                width={120} 
+                height={32} 
+                loading="lazy"
+              />
             </Link>
-            <nav className="hidden md:flex items-center space-x-8">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-4 lg:space-x-8">
               <Link to="/about" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
                 About
               </Link>
@@ -44,9 +60,70 @@ const Layout = ({ children }: LayoutProps) => {
                 Services
               </Link>
               <Link to="/contact" 
-                className="bg-gradient-to-r from-[#019B5F] to-[#8FDB34] text-white px-6 py-2.5 rounded-full font-medium 
+                className="bg-gradient-to-r from-[#019B5F] to-[#8FDB34] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium 
                 hover:shadow-lg hover:shadow-[#019B5F]/30 transition-all duration-200 transform hover:-translate-y-0.5">
                 Contact us
+              </Link>
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={toggleMobileMenu}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              aria-label="Toggle menu"
+            >
+              <svg 
+                className="w-6 h-6 text-gray-600" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          <div 
+            className={`md:hidden fixed top-[60px] left-0 w-full bg-white/95 backdrop-blur-lg border-b border-[#019B5F]/20 
+              shadow-lg transform transition-all duration-300 ease-in-out z-40 ${
+              isMobileMenuOpen ? 'translate-y-0 opacity-100 visible' : '-translate-y-full opacity-0 invisible'
+            }`}
+          >
+            <nav className="px-4 py-6 space-y-6">
+              <Link 
+                to="/about" 
+                className="block text-lg text-gray-600 hover:text-[#019B5F] transition-colors duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                to="/services" 
+                className="block text-lg text-gray-600 hover:text-[#019B5F] transition-colors duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Services
+              </Link>
+              <Link 
+                to="/contact" 
+                className="block text-lg text-gray-600 hover:text-[#019B5F] transition-colors duration-200 mb-4"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Contact us
+              </Link>
+              <Link 
+                to="/contact" 
+                className="block w-full bg-gradient-to-r from-[#019B5F] to-[#8FDB34] text-white px-6 py-3 
+                  rounded-full font-medium text-center hover:shadow-lg hover:shadow-[#019B5F]/30 
+                  transition-all duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get Started
               </Link>
             </nav>
           </div>
@@ -58,17 +135,21 @@ const Layout = ({ children }: LayoutProps) => {
         {children}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white pt-20 pb-10">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-16">
-            <div className="space-y-6">
+      {/* Footer - Made responsive */}
+      <footer className="bg-gray-900 text-white pt-12 sm:pt-20 pb-8 sm:pb-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-16">
+            {/* Company Info */}
+            <div className="space-y-4 sm:space-y-6">
               <img 
                 src={whiteLogoUrl} 
                 alt="SurePlug" 
-                className="h-6 w-auto" 
+                className="h-5 sm:h-6 w-auto" 
+                width={120} 
+                height={24} 
+                loading="lazy"
               />
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-sm sm:text-base">
                 Connecting you with trusted service providers in your area.
               </p>
               <div className="flex space-x-4">
@@ -76,7 +157,7 @@ const Layout = ({ children }: LayoutProps) => {
                   <a 
                     key={name} 
                     href="#" 
-                    className="w-10 h-10 rounded-full flex items-center justify-center 
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center 
                       bg-gray-800 hover:bg-[#019B5F] transition-colors duration-200"
                   >
                     {icon}
@@ -85,38 +166,39 @@ const Layout = ({ children }: LayoutProps) => {
               </div>
             </div>
             
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Company</h4>
-              <ul className="space-y-3">
-                <li><Link to="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Press</a></li>
+            {/* Footer Links - Made responsive */}
+            <div className="mt-8 sm:mt-0">
+              <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Company</h4>
+              <ul className="space-y-2 sm:space-y-3">
+                <li><Link to="/about" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">About Us</Link></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Careers</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Blog</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Press</a></li>
               </ul>
             </div>
 
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Support</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Safety</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+            <div className="mt-8 sm:mt-0">
+              <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Support</h4>
+              <ul className="space-y-2 sm:space-y-3">
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Help Center</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Safety</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-400 hover:text-white transition-colors text-sm sm:text-base">Privacy Policy</a></li>
               </ul>
             </div>
 
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Contact</h4>
-              <ul className="space-y-3">
-                <li className="text-gray-400">1234 Market St.</li>
-                <li className="text-gray-400">Suite 1000</li>
-                <li className="text-gray-400">San Francisco, CA 94103</li>
-                <li><Link to="/contact" className="text-[#019B5F] hover:text-[#8FDB34] transition-colors">hello@sureplug.com</Link></li>
+            <div className="mt-8 sm:mt-0">
+              <h4 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Contact</h4>
+              <ul className="space-y-2 sm:space-y-3">
+                <li className="text-gray-400 text-sm sm:text-base">1234 Market St.</li>
+                <li className="text-gray-400 text-sm sm:text-base">Suite 1000</li>
+                <li className="text-gray-400 text-sm sm:text-base">San Francisco, CA 94103</li>
+                <li><Link to="/contact" className="text-[#019B5F] hover:text-[#8FDB34] transition-colors text-sm sm:text-base">hello@sureplug.com</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="text-center text-gray-400 text-sm">
+          <div className="text-center text-gray-400 text-xs sm:text-sm border-t border-gray-800 pt-8">
             © 2024 SurePlug. All rights reserved.
           </div>
         </div>
