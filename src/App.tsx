@@ -10,7 +10,6 @@ import ForgotPassword from './pages/ForgotPassword'
 import VerifyOtp from './pages/VerifyOtp'
 import ResetPassword from './pages/ResetPassword'
 import BecomeProvider from './pages/BecomeProvider'
-import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
@@ -29,7 +28,6 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/become-a-provider" element={<BecomeProvider />} />
-            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
       </div>
