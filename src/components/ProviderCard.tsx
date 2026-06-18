@@ -10,7 +10,7 @@ interface ProviderCardProps {
 
 const ProviderCard = ({ name, profession, rating, reviews, location, image }: ProviderCardProps) => {
   return (
-    <div className="provider-card border rounded-lg overflow-hidden shadow-md p-4">
+    <div className="provider-card border rounded-lg overflow-hidden p-4">
       <div className="flex items-center">
         <img 
           src={image} 
@@ -31,7 +31,7 @@ const ProviderCard = ({ name, profession, rating, reviews, location, image }: Pr
         <p className="text-sm text-gray-500 mt-1">{location}</p>
       </div>
       
-      <button className="mt-3 w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+      <button className="btn-pill w-full mt-3">
         View Profile
       </button>
     </div>

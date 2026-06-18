@@ -2,7 +2,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import About from './pages/About'
 import Contact from './pages/Contact'
-import Services from './pages/Services'
+import Taskers from './pages/Taskers'
+import TaskerDetail from './pages/TaskerDetail'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import ForgotPassword from './pages/ForgotPassword'
+import VerifyOtp from './pages/VerifyOtp'
+import ResetPassword from './pages/ResetPassword'
+import BecomeProvider from './pages/BecomeProvider'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
@@ -12,8 +20,16 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/taskers" element={<Taskers />} />
+            <Route path="/taskers/:id" element={<TaskerDetail />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/become-a-provider" element={<BecomeProvider />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
       </div>
@@ -21,4 +37,4 @@ function App() {
   )
 }
 
-export default App 
+export default App

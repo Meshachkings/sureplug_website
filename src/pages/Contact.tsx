@@ -151,10 +151,7 @@ const Contact = () => {
                     ></textarea>
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-[#019B5F] text-white py-3 rounded-lg hover:bg-[#019B5F]/90 transition-colors duration-200"
-                  >
+                  <button type="submit" className="btn-pill w-full">
                     Send Message
                   </button>
                 </form>

@@ -11,7 +11,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -25,13 +25,13 @@ const Navbar = () => {
             <Link to="/home" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
               Home
             </Link>
-            <Link to="/services" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-              Find Services
+            <Link to="/taskers" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
+              Find Taskers
             </Link>
             <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
               Profile
             </Link>
-            <button className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+            <button className="btn-pill ml-4">
               Sign In
             </button>
           </div>
@@ -72,11 +72,11 @@ const Navbar = () => {
               Home
             </Link>
             <Link 
-              to="/services" 
+              to="/taskers" 
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
-              Find Services
+              Find Taskers
             </Link>
             <Link 
               to="/profile" 
@@ -85,7 +85,7 @@ const Navbar = () => {
             >
               Profile
             </Link>
-            <button className="mt-2 w-full px-4 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700">
+            <button className="btn-pill w-full mt-2">
               Sign In
             </button>
           </div>

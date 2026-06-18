@@ -56,12 +56,10 @@ const Layout = ({ children }: LayoutProps) => {
               <Link to="/about" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
                 About
               </Link>
-              <Link to="/services" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
-                Services
+              <Link to="/taskers" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
+                Taskers
               </Link>
-              <Link to="/contact" 
-                className="bg-gradient-to-r from-[#019B5F] to-[#8FDB34] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-medium 
-                hover:shadow-lg hover:shadow-[#019B5F]/30 transition-all duration-200 transform hover:-translate-y-0.5">
+              <Link to="/contact" className="btn-pill">
                 Contact us
               </Link>
             </nav>
@@ -90,7 +88,7 @@ const Layout = ({ children }: LayoutProps) => {
           {/* Mobile Menu */}
           <div 
             className={`md:hidden fixed top-[60px] left-0 w-full bg-white/95 backdrop-blur-lg border-b border-[#019B5F]/20 
-              shadow-lg transform transition-all duration-300 ease-in-out z-40 ${
+              transform transition-all duration-300 ease-in-out z-40 ${
               isMobileMenuOpen ? 'translate-y-0 opacity-100 visible' : '-translate-y-full opacity-0 invisible'
             }`}
           >
@@ -103,11 +101,11 @@ const Layout = ({ children }: LayoutProps) => {
                 About
               </Link>
               <Link 
-                to="/services" 
+                to="/taskers" 
                 className="block text-lg text-gray-600 hover:text-[#019B5F] transition-colors duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Services
+                Taskers
               </Link>
               <Link 
                 to="/contact" 
@@ -116,11 +114,9 @@ const Layout = ({ children }: LayoutProps) => {
               >
                 Contact us
               </Link>
-              <Link 
-                to="/contact" 
-                className="block w-full bg-gradient-to-r from-[#019B5F] to-[#8FDB34] text-white px-6 py-3 
-                  rounded-full font-medium text-center hover:shadow-lg hover:shadow-[#019B5F]/30 
-                  transition-all duration-200"
+              <Link
+                to="/contact"
+                className="btn-pill w-full text-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Get Started

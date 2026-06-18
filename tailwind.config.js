@@ -7,8 +7,24 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Montserrat', 'sans-serif'],
-        montserrat: ['Montserrat', 'sans-serif'],
+        sans: ['Sora', 'sans-serif'],
+        sora: ['Sora', 'sans-serif'],
+      },
+      colors: {
+        'forest': {
+          DEFAULT: '#1a2e26',
+          dark: '#0f1f1a',
+          light: '#2d4a3e',
+        },
+        'mint': {
+          DEFAULT: '#019B5F',
+          dark: '#017a4c',
+          light: '#EDF7F2',
+        },
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',
