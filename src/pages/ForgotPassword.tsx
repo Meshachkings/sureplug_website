@@ -1,14 +1,26 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { api, type ApiResponse } from '../lib/api';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    navigate('/verify-otp', { state: { email, flow: 'reset' } });
+    setError('');
+    setLoading(true);
+    try {
+      await api.post<ApiResponse<unknown>>('/auth/forgot-password', { email });
+      navigate('/verify-otp', { state: { email, flow: 'reset' } });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,8 +46,10 @@ const ForgotPassword = () => {
           />
         </div>
 
-        <button type="submit" className="btn-pill w-full">
-          Send verification code
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button type="submit" className="btn-pill w-full" disabled={loading}>
+          {loading ? 'Sending…' : 'Send verification code'}
         </button>
       </form>
 

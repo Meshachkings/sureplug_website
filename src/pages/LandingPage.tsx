@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -6,18 +6,57 @@ import {
   PlayIcon,
   ArrowUp01Icon,
   ArrowDown01Icon,
-  StarIcon,
   ArrowRight01Icon,
   InstagramIcon,
   YoutubeIcon,
   NewTwitterIcon,
 } from '@hugeicons/core-free-icons';
 import StoreBadges from '../components/StoreBadges';
-import TaskerCard from '../components/TaskerCard';
 import PopularServicesCarousel from '../components/PopularServicesCarousel';
 import CtaBanner from '../components/CtaBanner';
 import HeroHeader from '../components/HeroHeader';
-import { taskers } from '../data/taskers';
+import { api, type ApiResponse, type ApiService } from '../lib/api';
+import { formatNaira } from '../lib/format';
+import StarFilled from '../components/StarFilled';
+import type { Tasker } from '../data/taskers';
+
+const AVATAR_PLACEHOLDER = (name: string) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=019B5F&color=fff&size=200`;
+
+const SERVICE_IMAGE_FALLBACK: Record<string, string> = {
+  Plumbing: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=280&fit=crop',
+  Cleaning: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=280&fit=crop',
+  Electrical: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=280&fit=crop',
+  Moving: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=280&fit=crop',
+  Assembly: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=280&fit=crop',
+  'Home Repair': 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&h=280&fit=crop',
+};
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=280&fit=crop';
+
+function mapServiceToTasker(service: ApiService): Tasker {
+  const providerName = `${service.provider.firstName} ${service.provider.lastName}`.trim();
+  const categoryName = (service.categoryId?.name ?? '').trim();
+  const image =
+    service.images?.[0]?.url ||
+    service.categoryId?.image?.url ||
+    service.provider.avatar?.url ||
+    SERVICE_IMAGE_FALLBACK[categoryName] ||
+    AVATAR_PLACEHOLDER(providerName) ||
+    DEFAULT_IMAGE;
+  return {
+    id: service.provider.suretag || service.provider._id,
+    name: providerName,
+    role: service.title,
+    category: categoryName,
+    tags: categoryName ? [categoryName] : [],
+    image,
+    rating: service.averageRating ?? 0,
+    reviews: service.reviewCount ?? 0,
+    price: service.price ?? 0,
+    location: service.state ?? '',
+    featured: (service.averageRating ?? 0) >= 4.5,
+  };
+}
 
 const logoWhite =
   'https://res.cloudinary.com/dujux4xcs/image/upload/v1743598694/Group_21_1_j2gixb.svg';
@@ -200,13 +239,20 @@ const socialLinks = [
   { icon: NewTwitterIcon, label: 'X', href: '#' },
 ];
 
-const showcaseTaskers = taskers.slice(0, 8);
-const taskerCarouselRowOne = showcaseTaskers.filter((_, index) => index % 2 === 0);
-const taskerCarouselRowTwo = showcaseTaskers.filter((_, index) => index % 2 === 1);
-
 const LandingPage = () => {
   const [expandedService, setExpandedService] = useState('01');
   const [activeHowItWorksStep, setActiveHowItWorksStep] = useState(0);
+  const [showcaseTaskers, setShowcaseTaskers] = useState<Tasker[]>([]);
+
+  useEffect(() => {
+    api
+      .get<ApiResponse<{ services: ApiService[] }>>('/services/public?limit=8')
+      .then((res) => setShowcaseTaskers(res.data.services.map(mapServiceToTasker)))
+      .catch(() => {});
+  }, []);
+
+  const taskerCarouselRowOne = showcaseTaskers.filter((_, index) => index % 2 === 0);
+  const taskerCarouselRowTwo = showcaseTaskers.filter((_, index) => index % 2 === 1);
 
   const toggleService = (id: string) => {
     setExpandedService((current) => (current === id ? '' : id));
@@ -483,30 +529,83 @@ const LandingPage = () => {
       {/* Meet Top Taskers Section */}
       <section className="bg-gray-50/80 border-t border-gray-100 overflow-hidden">
         <div className="section-wrap">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-xl sm:text-2xl md:text-[1.75rem] lg:text-[2rem] font-semibold text-gray-900 tracking-tight leading-tight">
-              Meet Our Top-rated Taskers
-            </h2>
-            <p className="mt-3 text-sm sm:text-[15px] text-gray-500 leading-relaxed">
-              Get to know the taskers who consistently deliver excellent results.
-            </p>
-            <Link to="/taskers" className="btn-pill inline-flex mt-6 sm:mt-7">
-              View All Taskers
+
+          {/* Header — left-aligned on mobile with inline CTA, centered on desktop */}
+          <div className="flex items-end justify-between gap-4 sm:flex-col sm:items-center sm:text-center sm:max-w-2xl sm:mx-auto">
+            <div>
+              <p className="section-label mb-2 sm:mb-3">Top Taskers</p>
+              <h2 className="text-xl sm:text-2xl md:text-[1.75rem] lg:text-[2rem] font-semibold text-gray-900 tracking-tight leading-tight">
+                Meet Our Top-rated Taskers
+              </h2>
+              <p className="hidden sm:block mt-3 text-[15px] text-gray-500 leading-relaxed">
+                Get to know the taskers who consistently deliver excellent results.
+              </p>
+            </div>
+            <Link
+              to="/taskers"
+              className="sm:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-mint hover:text-mint-dark shrink-0 pb-0.5"
+            >
+              View all
+              <HugeiconsIcon icon={ArrowRight01Icon} size={13} color="currentColor" strokeWidth={2.5} />
             </Link>
           </div>
 
-          <div className="mt-10 sm:mt-12 space-y-5 sm:space-y-6">
-            <div className="flex gap-5 sm:gap-6 overflow-x-auto pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scrollbar-none">
-              {taskerCarouselRowOne.map((tasker) => (
-                <TaskerCard key={tasker.id} tasker={tasker} className="shrink-0" />
-              ))}
-            </div>
-            <div className="flex gap-5 sm:gap-6 overflow-x-auto pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 sm:pl-16 lg:pl-24 scrollbar-none">
-              {taskerCarouselRowTwo.map((tasker) => (
-                <TaskerCard key={tasker.id} tasker={tasker} className="shrink-0" />
-              ))}
-            </div>
+          {/* Portrait overlay cards — single scroll row, responsive widths */}
+          <div className="mt-6 sm:mt-10 flex gap-3 sm:gap-4 overflow-x-auto pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scrollbar-none snap-x snap-mandatory">
+            {showcaseTaskers.map((tasker) => (
+              <Link
+                key={tasker.id}
+                to={`/taskers/${tasker.id}`}
+                className="group relative shrink-0 w-[185px] sm:w-[220px] lg:w-[245px] aspect-[3/4] rounded-2xl sm:rounded-3xl overflow-hidden snap-start bg-gray-200"
+              >
+                <img
+                  src={tasker.image}
+                  alt={tasker.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04] group-active:scale-[1.02]"
+                />
+                {/* Bottom gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/20 to-transparent" />
+                {/* Top vignette */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
+
+                {/* Rating pill */}
+                {tasker.rating > 0 && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/35 backdrop-blur-sm border border-white/15 rounded-full px-2 py-1">
+                    <StarFilled size={10} color="#FBBF24" />
+                    <span className="text-[11px] font-semibold text-white tabular-nums leading-none">
+                      {tasker.rating.toFixed(1)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Info overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-3.5 sm:p-4">
+                  {tasker.category && (
+                    <p className="text-[9px] sm:text-[10px] font-semibold text-white/50 uppercase tracking-[0.14em] leading-none mb-1.5">
+                      {tasker.category}
+                    </p>
+                  )}
+                  <h3 className="text-sm sm:text-[15px] font-bold text-white leading-snug tracking-tight line-clamp-1">
+                    {tasker.name}
+                  </h3>
+                  <p className="mt-0.5 text-[11px] sm:text-xs text-white/50 leading-snug line-clamp-1">
+                    {tasker.role}
+                  </p>
+                  {tasker.price > 0 && (
+                    <div className="mt-2.5 flex items-center justify-between gap-2">
+                      <p className="text-[11px] sm:text-xs font-semibold text-mint leading-none">
+                        from {formatNaira(tasker.price)}/hr
+                      </p>
+                      <span className="text-[10px] font-semibold text-white/80 bg-white/10 border border-white/15 rounded-full px-2 py-0.5 leading-none shrink-0">
+                        Book
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
           </div>
+
         </div>
       </section>
 
@@ -540,13 +639,7 @@ const LandingPage = () => {
                   </div>
                   <div className="flex items-center gap-0.5 shrink-0 sm:pt-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <HugeiconsIcon
-                        key={i}
-                        icon={StarIcon}
-                        size={12}
-                        color="#019B5F"
-                        strokeWidth={2}
-                      />
+                      <StarFilled key={i} size={12} color="#019B5F" />
                     ))}
                   </div>
                 </div>

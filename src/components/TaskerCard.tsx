@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Message01Icon, StarIcon } from '@hugeicons/core-free-icons';
+import { Message01Icon } from '@hugeicons/core-free-icons';
+import StarFilled from './StarFilled';
 import type { Tasker } from '../data/taskers';
 import { formatNaira } from '../lib/format';
 
@@ -73,8 +74,8 @@ const TaskerCard = ({ tasker, className = '', variant = 'carousel' }: TaskerCard
             }`}
           >
             <span className="inline-flex items-center gap-2">
-              <HugeiconsIcon icon={StarIcon} size={isGrid ? 16 : 14} color="#FBBF24" strokeWidth={2} />
-              <span>{tasker.rating} Rating</span>
+              <StarFilled size={isGrid ? 16 : 14} color="#FBBF24" />
+              <span>{tasker.rating > 0 ? tasker.rating.toFixed(1) : '—'} Rating</span>
             </span>
             <span className="inline-flex items-center gap-2">
               <HugeiconsIcon icon={Message01Icon} size={isGrid ? 16 : 14} color="#111827" strokeWidth={2} />

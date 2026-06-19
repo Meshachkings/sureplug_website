@@ -1,15 +1,33 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { api, type ApiResponse, type User } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    navigate('/taskers');
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post<ApiResponse<{ token: string; user: User }>>(
+        '/auth/login',
+        { email, password }
+      );
+      login(res.data.token, res.data.user);
+      navigate('/taskers');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,8 +74,10 @@ const Login = () => {
           />
         </div>
 
-        <button type="submit" className="btn-pill w-full mt-2">
-          Sign in
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button type="submit" className="btn-pill w-full mt-2" disabled={loading}>
+          {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
 

@@ -1,14 +1,24 @@
 import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { api, type ApiResponse } from '../lib/api';
+
+type LocationState = {
+  email?: string;
+  otp?: string;
+};
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { email = '', otp = '' } = (location.state as LocationState) ?? {};
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
@@ -19,7 +29,19 @@ const ResetPassword = () => {
       return;
     }
     setError('');
-    navigate('/login');
+    setLoading(true);
+    try {
+      await api.patch<ApiResponse<unknown>>('/auth/reset-password', {
+        email,
+        otp,
+        password,
+      });
+      navigate('/login');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reset password. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,8 +87,8 @@ const ResetPassword = () => {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <button type="submit" className="btn-pill w-full">
-          Update password
+        <button type="submit" className="btn-pill w-full" disabled={loading}>
+          {loading ? 'Updating…' : 'Update password'}
         </button>
       </form>
 

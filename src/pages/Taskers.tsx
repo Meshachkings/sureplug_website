@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -8,34 +8,89 @@ import {
 import HeroHeader from '../components/HeroHeader';
 import TaskerCard from '../components/TaskerCard';
 import CtaBanner from '../components/CtaBanner';
-import { taskerCategories, taskers } from '../data/taskers';
+import { api, type ApiResponse, type ApiService } from '../lib/api';
+import type { Tasker } from '../data/taskers';
 
 type SortOption = 'rating-desc' | 'rating-asc';
 
+const AVATAR_PLACEHOLDER = (name: string) =>
+  `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=019B5F&color=fff&size=200`;
+
+const SERVICE_IMAGE_FALLBACK: Record<string, string> = {
+  Plumbing: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=280&fit=crop',
+  Cleaning: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=280&fit=crop',
+  Electrical: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=280&fit=crop',
+  Moving: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=280&fit=crop',
+  Assembly: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=280&fit=crop',
+  'Home Repair': 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&h=280&fit=crop',
+};
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=280&fit=crop';
+
+function mapServiceToTasker(service: ApiService): Tasker {
+  const providerName = `${service.provider.firstName} ${service.provider.lastName}`.trim();
+  const categoryName = (service.categoryId?.name ?? '').trim();
+  const avatarUrl =
+    service.images?.[0]?.url ||
+    service.categoryId?.image?.url ||
+    service.provider.avatar?.url ||
+    SERVICE_IMAGE_FALLBACK[categoryName] ||
+    AVATAR_PLACEHOLDER(providerName) ||
+    DEFAULT_IMAGE;
+
+  return {
+    id: service.provider.suretag || service.provider._id,
+    name: providerName,
+    role: service.title,
+    category: categoryName.trim(),
+    tags: categoryName ? [categoryName] : [],
+    image: avatarUrl,
+    rating: service.averageRating ?? 0,
+    reviews: service.reviewCount ?? 0,
+    price: service.price ?? 0,
+    location: service.state ?? '',
+    featured: (service.averageRating ?? 0) >= 4.5,
+  };
+}
+
 const Taskers = () => {
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<(typeof taskerCategories)[number]>('All');
   const [sort, setSort] = useState<SortOption>('rating-desc');
+  const [services, setServices] = useState<Tasker[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  useEffect(() => {
+    setLoading(true);
+    setFetchError('');
+    api
+      .get<ApiResponse<{ services: ApiService[] }>>('/services/public?limit=50')
+      .then((res) => setServices(res.data.services.map(mapServiceToTasker)))
+      .catch((err) => setFetchError(err instanceof Error ? err.message : 'Failed to load services.'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const categories = useMemo(() => {
+    const names = new Set(services.map((s) => s.category).filter(Boolean));
+    return ['All', ...Array.from(names).sort()];
+  }, [services]);
 
   const filteredTaskers = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    const filtered = taskers.filter((tasker) => {
+    const q = query.trim().toLowerCase();
+    const filtered = services.filter((tasker) => {
       const matchesCategory = activeCategory === 'All' || tasker.category === activeCategory;
       const matchesQuery =
-        !normalizedQuery ||
-        tasker.name.toLowerCase().includes(normalizedQuery) ||
-        tasker.role.toLowerCase().includes(normalizedQuery) ||
-        tasker.location.toLowerCase().includes(normalizedQuery) ||
-        tasker.category.toLowerCase().includes(normalizedQuery);
-
+        !q ||
+        tasker.name.toLowerCase().includes(q) ||
+        tasker.role.toLowerCase().includes(q) ||
+        tasker.location.toLowerCase().includes(q) ||
+        tasker.category.toLowerCase().includes(q);
       return matchesCategory && matchesQuery;
     });
-
     return [...filtered].sort((a, b) =>
       sort === 'rating-desc' ? b.rating - a.rating : a.rating - b.rating,
     );
-  }, [activeCategory, query, sort]);
+  }, [services, activeCategory, query, sort]);
 
   const toggleSort = () => {
     setSort((current) => (current === 'rating-desc' ? 'rating-asc' : 'rating-desc'));
@@ -45,7 +100,6 @@ const Taskers = () => {
     <div className="bg-white text-gray-900 min-h-screen overflow-x-hidden">
       <HeroHeader />
       <section className="hero-grain relative overflow-hidden rounded-b-[1.75rem] sm:rounded-b-[2.5rem]">
-
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-14">
           <div className="max-w-2xl">
             <p className="text-white/50 text-[11px] font-medium uppercase tracking-[0.18em] mb-3">
@@ -79,7 +133,7 @@ const Taskers = () => {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6 sm:mb-8 lg:mb-10">
           <div className="min-w-0">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
-              {filteredTaskers.length} tasker{filteredTaskers.length === 1 ? '' : 's'} available
+              {loading ? 'Loading…' : `${filteredTaskers.length} service${filteredTaskers.length === 1 ? '' : 's'} available`}
             </h2>
             <p className="mt-1 text-sm text-gray-500">
               Filter by category to narrow your search.
@@ -107,17 +161,14 @@ const Taskers = () => {
         </div>
 
         <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 scrollbar-none">
-          {taskerCategories.map((category) => {
+          {categories.map((category) => {
             const isActive = activeCategory === category;
-
             return (
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
                 className={`shrink-0 rounded-full px-4 py-2.5 sm:px-6 sm:py-3 text-xs font-semibold leading-none transition-colors min-h-[44px] ${
-                  isActive
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                  isActive ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 {category}
@@ -126,15 +177,32 @@ const Taskers = () => {
           })}
         </div>
 
-        {filteredTaskers.length > 0 ? (
+        {loading && (
           <div className="mt-6 sm:mt-8 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-            {filteredTaskers.map((tasker) => (
-              <TaskerCard key={tasker.id} tasker={tasker} variant="grid" />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-[180px] rounded-2xl bg-gray-100 animate-pulse" />
             ))}
           </div>
-        ) : (
+        )}
+
+        {!loading && fetchError && (
+          <div className="mt-10 rounded-2xl border border-dashed border-red-200 px-6 py-12 text-center">
+            <p className="text-base font-medium text-gray-900">Could not load services</p>
+            <p className="mt-2 text-sm text-gray-500">{fetchError}</p>
+          </div>
+        )}
+
+        {!loading && !fetchError && filteredTaskers.length > 0 && (
+          <div className="mt-6 sm:mt-8 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+            {filteredTaskers.map((tasker) => (
+              <TaskerCard key={`${tasker.id}-${tasker.role}`} tasker={tasker} variant="grid" />
+            ))}
+          </div>
+        )}
+
+        {!loading && !fetchError && filteredTaskers.length === 0 && (
           <div className="mt-10 rounded-2xl border border-dashed border-gray-200 px-6 py-12 text-center">
-            <p className="text-base font-medium text-gray-900">No taskers found</p>
+            <p className="text-base font-medium text-gray-900">No services found</p>
             <p className="mt-2 text-sm text-gray-500">
               Try a different search term or category.
             </p>

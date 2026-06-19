@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import { api, type ApiResponse, type User } from '../lib/api';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -8,10 +9,30 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    navigate('/verify-otp', { state: { email, flow: 'signup' } });
+    setError('');
+    setLoading(true);
+    try {
+      const parts = fullName.trim().split(/\s+/);
+      const firstName = parts[0] ?? '';
+      const lastName = parts.slice(1).join(' ') || firstName;
+      await api.post<ApiResponse<User>>('/auth/register', {
+        firstName,
+        lastName,
+        email,
+        phone,
+        password,
+      });
+      navigate('/verify-otp', { state: { email, flow: 'signup' } });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -90,8 +111,10 @@ const Signup = () => {
           By creating an account, you agree to our Terms of Use and Privacy Policy.
         </p>
 
-        <button type="submit" className="btn-pill w-full">
-          Continue
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button type="submit" className="btn-pill w-full" disabled={loading}>
+          {loading ? 'Creating account…' : 'Continue'}
         </button>
       </form>
 
