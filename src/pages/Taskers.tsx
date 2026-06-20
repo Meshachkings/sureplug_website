@@ -129,13 +129,13 @@ const Taskers = () => {
         </div>
       </section>
 
-      <section className="section-wrap !py-6 sm:!py-10 lg:!py-14">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6 sm:mb-8 lg:mb-10">
+      <section className="section-wrap !py-5 sm:!py-10 lg:!py-14">
+        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-8 lg:mb-10">
           <div className="min-w-0">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+            <h2 className="text-base sm:text-xl font-semibold text-gray-900 tracking-tight leading-snug">
               {loading ? 'Loading…' : `${filteredTaskers.length} service${filteredTaskers.length === 1 ? '' : 's'} available`}
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="hidden sm:block mt-1 text-sm text-gray-500">
               Filter by category to narrow your search.
             </p>
           </div>
@@ -143,18 +143,17 @@ const Taskers = () => {
             type="button"
             onClick={toggleSort}
             aria-label={`Sort by rating, ${sort === 'rating-desc' ? 'highest first' : 'lowest first'}`}
-            className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-xs font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors self-stretch sm:self-auto justify-center sm:justify-start min-h-[44px]"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5 text-xs font-semibold text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors min-h-[36px] sm:min-h-[44px]"
           >
-            <HugeiconsIcon icon={FilterHorizontalIcon} size={14} color="currentColor" strokeWidth={2} />
+            <HugeiconsIcon icon={FilterHorizontalIcon} size={13} color="currentColor" strokeWidth={2} />
             <span className="truncate">
-              Sort by rating
-              <span className="text-gray-400 font-normal sm:hidden">
+              Sort
+              <span className="text-gray-400 font-normal">
                 {' '}
-                ({sort === 'rating-desc' ? '↓' : '↑'})
+                {sort === 'rating-desc' ? '↓' : '↑'}
               </span>
               <span className="hidden sm:inline text-gray-400 font-normal">
-                {' '}
-                ({sort === 'rating-desc' ? 'high to low' : 'low to high'})
+                {' '}({sort === 'rating-desc' ? 'high to low' : 'low to high'})
               </span>
             </span>
           </button>
@@ -178,9 +177,9 @@ const Taskers = () => {
         </div>
 
         {loading && (
-          <div className="mt-6 sm:mt-8 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          <div className="mt-4 sm:mt-8 lg:mt-10 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-[180px] rounded-2xl bg-gray-100 animate-pulse" />
+              <div key={i} className="aspect-[4/3] rounded-2xl bg-gray-100 animate-pulse" />
             ))}
           </div>
         )}
@@ -193,7 +192,7 @@ const Taskers = () => {
         )}
 
         {!loading && !fetchError && filteredTaskers.length > 0 && (
-          <div className="mt-6 sm:mt-8 lg:mt-10 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          <div className="mt-4 sm:mt-8 lg:mt-10 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
             {filteredTaskers.map((tasker) => (
               <TaskerCard key={`${tasker.id}-${tasker.role}`} tasker={tasker} variant="grid" />
             ))}

@@ -16,6 +16,7 @@ import HeroHeader from '../components/HeroHeader';
 import { api, type ApiResponse, type ApiProviderProfile, type ApiReview } from '../lib/api';
 import { formatNaira } from '../lib/format';
 import StarFilled from '../components/StarFilled';
+import { useBookingModal } from '../context/BookingModalContext';
 
 const AVATAR_PLACEHOLDER = (name: string) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=019B5F&color=fff&size=200`;
@@ -61,6 +62,7 @@ const ReviewCard = ({ review }: { review: ApiReview }) => {
 };
 
 const TaskerDetail = () => {
+  const { openBookingModal } = useBookingModal();
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<ApiProviderProfile | null>(null);
   const [similar, setSimilar] = useState<{ name: string; suretag: string; role: string; avatar?: string }[]>([]);
@@ -232,7 +234,7 @@ const TaskerDetail = () => {
           )}
 
           <div className={`flex flex-wrap gap-2 sm:gap-3 ${serviceTags.length > 0 ? 'mt-4' : ''}`}>
-            <button type="button" className="btn-pill">
+            <button type="button" onClick={openBookingModal} className="btn-pill">
               Book {firstName}
             </button>
             <button type="button" className="btn-pill-outline">
@@ -350,7 +352,7 @@ const TaskerDetail = () => {
                   <span className="text-base font-normal text-gray-400">/hr</span>
                 </p>
                 <p className="mt-2 text-sm text-gray-500">Transparent pricing with no hidden fees.</p>
-                <button type="button" className="btn-pill group w-full mt-4">
+                <button type="button" onClick={openBookingModal} className="btn-pill group w-full mt-4">
                   Book {firstName}
                   <HugeiconsIcon
                     icon={ArrowRight01Icon}

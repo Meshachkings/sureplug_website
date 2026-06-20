@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { BookingModalProvider } from './context/BookingModalContext'
 import LandingPage from './pages/LandingPage'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -15,6 +16,7 @@ import BecomeProvider from './pages/BecomeProvider'
 function App() {
   return (
     <AuthProvider>
+    <BookingModalProvider>
     <Router>
       <div className="app">
         <main>
@@ -34,6 +36,7 @@ function App() {
         </main>
       </div>
     </Router>
+    </BookingModalProvider>
     </AuthProvider>
   )
 }
