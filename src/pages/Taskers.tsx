@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -53,22 +54,55 @@ function mapServiceToTasker(service: ApiService): Tasker {
 }
 
 const Taskers = () => {
-  const [query, setQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialQuery = searchParams.get('q') ?? '';
+  const [inputValue, setInputValue] = useState(initialQuery);
+  const [committedQuery, setCommittedQuery] = useState(initialQuery);
+
   const [sort, setSort] = useState<SortOption>('rating-desc');
   const [services, setServices] = useState<Tasker[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
-  useEffect(() => {
+  const fetchServices = useCallback(async (search: string) => {
     setLoading(true);
     setFetchError('');
-    api
-      .get<ApiResponse<{ services: ApiService[] }>>('/services/public?limit=50')
-      .then((res) => setServices(res.data.services.map(mapServiceToTasker)))
-      .catch((err) => setFetchError(err instanceof Error ? err.message : 'Failed to load services.'))
-      .finally(() => setLoading(false));
+    try {
+      const params = new URLSearchParams({ limit: '50' });
+      const cleaned = search.trim().replace(/^@+/, '');
+      if (cleaned) params.set('search', cleaned);
+      const res = await api.get<ApiResponse<{ services: ApiService[] }>>(
+        `/services/public?${params.toString()}`
+      );
+      setServices(res.data.services.map(mapServiceToTasker));
+      setActiveCategory('All');
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : 'Failed to load services.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchServices(committedQuery);
+  }, [fetchServices, committedQuery]);
+
+  // Sync URL → input when navigating from another page with ?q=
+  useEffect(() => {
+    const q = searchParams.get('q') ?? '';
+    setInputValue(q);
+    setCommittedQuery(q);
+  }, [searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = inputValue.trim();
+    if (trimmed === committedQuery) return;
+    setSearchParams(trimmed ? { q: trimmed } : {}, { replace: true });
+    setCommittedQuery(trimmed);
+  };
 
   const categories = useMemo(() => {
     const names = new Set(services.map((s) => s.category).filter(Boolean));
@@ -76,21 +110,14 @@ const Taskers = () => {
   }, [services]);
 
   const filteredTaskers = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const filtered = services.filter((tasker) => {
-      const matchesCategory = activeCategory === 'All' || tasker.category === activeCategory;
-      const matchesQuery =
-        !q ||
-        tasker.name.toLowerCase().includes(q) ||
-        tasker.role.toLowerCase().includes(q) ||
-        tasker.location.toLowerCase().includes(q) ||
-        tasker.category.toLowerCase().includes(q);
-      return matchesCategory && matchesQuery;
-    });
+    const filtered =
+      activeCategory === 'All'
+        ? services
+        : services.filter((t) => t.category === activeCategory);
     return [...filtered].sort((a, b) =>
       sort === 'rating-desc' ? b.rating - a.rating : a.rating - b.rating,
     );
-  }, [services, activeCategory, query, sort]);
+  }, [services, activeCategory, sort]);
 
   const toggleSort = () => {
     setSort((current) => (current === 'rating-desc' ? 'rating-asc' : 'rating-desc'));
@@ -114,18 +141,24 @@ const Taskers = () => {
             </p>
           </div>
 
-          <div className="mt-6 sm:mt-8 max-w-xl">
+          <form onSubmit={handleSearch} className="mt-6 sm:mt-8 max-w-xl">
             <div className="flex items-center bg-white rounded-full pl-4 sm:pl-5 pr-1.5 py-1.5 border border-white/30">
               <HugeiconsIcon icon={Search01Icon} size={18} color="#9ca3af" strokeWidth={2} className="shrink-0 mr-2" />
               <input
                 type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Search by name, skill, or city"
                 className="flex-1 min-w-0 py-3 text-gray-800 text-[15px] sm:text-sm placeholder:text-gray-400 bg-transparent outline-none"
               />
+              <button
+                type="submit"
+                className="bg-[#019B5F] hover:bg-[#017a4c] transition-colors rounded-full h-10 px-4 sm:px-5 text-white text-sm font-semibold shrink-0"
+              >
+                Search
+              </button>
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
@@ -133,7 +166,11 @@ const Taskers = () => {
         <div className="flex items-center justify-between gap-3 mb-4 sm:mb-8 lg:mb-10">
           <div className="min-w-0">
             <h2 className="text-base sm:text-xl font-semibold text-gray-900 tracking-tight leading-snug">
-              {loading ? 'Loading…' : `${filteredTaskers.length} service${filteredTaskers.length === 1 ? '' : 's'} available`}
+              {loading
+                ? 'Searching…'
+                : committedQuery
+                ? `${filteredTaskers.length} result${filteredTaskers.length === 1 ? '' : 's'} for "${committedQuery}"`
+                : `${filteredTaskers.length} service${filteredTaskers.length === 1 ? '' : 's'} available`}
             </h2>
             <p className="hidden sm:block mt-1 text-sm text-gray-500">
               Filter by category to narrow your search.
@@ -203,11 +240,15 @@ const Taskers = () => {
           <div className="mt-10 rounded-2xl border border-dashed border-gray-200 px-6 py-12 text-center">
             <p className="text-base font-medium text-gray-900">No services found</p>
             <p className="mt-2 text-sm text-gray-500">
-              Try a different search term or category.
+              {committedQuery
+                ? `No results for "${committedQuery}". Try a different search term.`
+                : 'Try a different category.'}
             </p>
             <button
               onClick={() => {
-                setQuery('');
+                setInputValue('');
+                setCommittedQuery('');
+                setSearchParams({}, { replace: true });
                 setActiveCategory('All');
               }}
               className="btn-link group justify-center mt-5"

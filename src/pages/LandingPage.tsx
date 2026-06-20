@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -240,9 +240,17 @@ const socialLinks = [
 ];
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const [heroSearch, setHeroSearch] = useState('');
   const [expandedService, setExpandedService] = useState('01');
   const [activeHowItWorksStep, setActiveHowItWorksStep] = useState(0);
   const [showcaseTaskers, setShowcaseTaskers] = useState<Tasker[]>([]);
+
+  const handleHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = heroSearch.trim();
+    navigate(q ? `/taskers?q=${encodeURIComponent(q)}` : '/taskers');
+  };
 
   useEffect(() => {
     api
@@ -308,21 +316,24 @@ const LandingPage = () => {
               From home repairs to errands, get connected with reliable help in minutes
             </p>
 
-            <div className="mt-6 sm:mt-8 max-w-lg mx-auto w-full px-1">
+            <form onSubmit={handleHeroSearch} className="mt-6 sm:mt-8 max-w-lg mx-auto w-full px-1">
               <div className="flex items-center bg-white rounded-full pl-4 sm:pl-6 pr-1.5 py-1.5 sm:py-1 border border-white/30">
                 <input
                   type="text"
+                  value={heroSearch}
+                  onChange={(e) => setHeroSearch(e.target.value)}
                   placeholder="What do you need help with?"
                   className="flex-1 min-w-0 py-3 sm:py-3 text-gray-800 text-[15px] sm:text-sm placeholder:text-gray-400 bg-transparent outline-none"
                 />
                 <button
+                  type="submit"
                   className="bg-mint hover:bg-mint-dark transition-colors rounded-full w-11 h-11 sm:w-11 sm:h-11 flex items-center justify-center shrink-0"
                   aria-label="Search"
                 >
                   <HugeiconsIcon icon={Search01Icon} size={20} color="#ffffff" strokeWidth={2} />
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
 
