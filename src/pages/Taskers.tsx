@@ -47,7 +47,7 @@ function mapServiceToTasker(service: ApiService): Tasker {
     rating: service.averageRating ?? 0,
     reviews: service.reviewCount ?? 0,
     price: service.price ?? 0,
-    location: service.state ?? '',
+    location: service.state || 'Nigeria',
     featured: (service.averageRating ?? 0) >= 4.5,
   };
 }

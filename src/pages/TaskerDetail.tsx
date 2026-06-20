@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -8,6 +8,7 @@ import {
   Location01Icon,
   Message01Icon,
   Share01Icon,
+  Tag01Icon,
   ViewIcon,
   CheckmarkBadge01Icon,
 } from '@hugeicons/core-free-icons';
@@ -67,6 +68,10 @@ const TaskerDetail = () => {
   const [similar, setSimilar] = useState<{ name: string; suretag: string; role: string; avatar?: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [tagCopied, setTagCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const copyTagTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -158,6 +163,29 @@ const TaskerDetail = () => {
   const avatarUrl = provider.avatar?.url ?? AVATAR_PLACEHOLDER(fullName);
   const primaryService = services[0];
   const categoryName = primaryService?.categoryId?.name ?? '';
+  const location = primaryService?.state || 'Nigeria';
+
+  const handleCopyTag = () => {
+    if (!provider.suretag) return;
+    navigator.clipboard.writeText(`@${provider.suretag}`).then(() => {
+      setTagCopied(true);
+      if (copyTagTimer.current) clearTimeout(copyTagTimer.current);
+      copyTagTimer.current = setTimeout(() => setTagCopied(false), 2000);
+    });
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = `${fullName} on SurePlug`;
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      if (shareTimer.current) clearTimeout(shareTimer.current);
+      shareTimer.current = setTimeout(() => setShareCopied(false), 2000);
+    }
+  };
   const serviceTags = [...new Set(services.map((s) => s.title))].slice(0, 6);
   const allReviews = services.flatMap((s) => s.reviews ?? []).slice(0, 6);
   const price = primaryService?.price ?? 0;
@@ -197,12 +225,23 @@ const TaskerDetail = () => {
                 {primaryService && (
                   <p className="mt-1 text-sm sm:text-lg text-white/75 truncate">{primaryService.title}</p>
                 )}
-                {provider.suretag && (
-                  <p className="mt-1 inline-flex items-center gap-1.5 text-xs sm:text-sm text-white/60">
+                <div className="mt-1.5 flex items-center flex-wrap gap-2">
+                  <p className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white/60">
                     <HugeiconsIcon icon={Location01Icon} size={13} color="currentColor" strokeWidth={2} />
-                    @{provider.suretag}
+                    {location}
                   </p>
-                )}
+                  {provider.suretag && (
+                    <button
+                      type="button"
+                      onClick={handleCopyTag}
+                      title="Copy suretag"
+                      className="inline-flex items-center gap-1 rounded-full bg-white/10 border border-white/15 px-2.5 py-1 text-[11px] sm:text-xs font-medium text-white/70 tracking-tight hover:bg-white/20 transition-colors cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={Tag01Icon} size={11} color="currentColor" strokeWidth={2} />
+                      {tagCopied ? 'Copied!' : `@${provider.suretag}`}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -240,9 +279,9 @@ const TaskerDetail = () => {
               <HugeiconsIcon icon={Message01Icon} size={14} color="currentColor" strokeWidth={2} />
               Message
             </button>
-            <button type="button" className="btn-pill-outline">
+            <button type="button" onClick={handleShare} className="btn-pill-outline">
               <HugeiconsIcon icon={Share01Icon} size={14} color="currentColor" strokeWidth={2} />
-              Share profile
+              {shareCopied ? 'Link copied!' : 'Share profile'}
             </button>
           </div>
         </section>

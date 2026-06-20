@@ -57,6 +57,7 @@ export interface ApiProviderService {
   _id: string;
   title: string;
   price: number;
+  state?: string;
   categoryId: { name: string };
   reviewCount: number;
   orderCount: number;
