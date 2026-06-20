@@ -251,9 +251,6 @@ const LandingPage = () => {
       .catch(() => {});
   }, []);
 
-  const taskerCarouselRowOne = showcaseTaskers.filter((_, index) => index % 2 === 0);
-  const taskerCarouselRowTwo = showcaseTaskers.filter((_, index) => index % 2 === 1);
-
   const toggleService = (id: string) => {
     setExpandedService((current) => (current === id ? '' : id));
   };

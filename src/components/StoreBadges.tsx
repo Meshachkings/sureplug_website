@@ -7,9 +7,6 @@ type StoreBadgesProps = {
 };
 
 const StoreBadges = ({ className = '', layout = 'row' }: StoreBadgesProps) => {
-  const layoutClass =
-    layout === 'column' ? 'flex-col items-stretch' : 'flex-row flex-wrap items-center';
-
   if (layout === 'column') {
     return (
       <div className={`flex flex-col gap-3 ${className}`}>

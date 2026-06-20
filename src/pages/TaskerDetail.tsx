@@ -8,7 +8,6 @@ import {
   Location01Icon,
   Message01Icon,
   Share01Icon,
-  StarIcon,
   ViewIcon,
   CheckmarkBadge01Icon,
 } from '@hugeicons/core-free-icons';
