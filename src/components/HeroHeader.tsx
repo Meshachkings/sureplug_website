@@ -80,6 +80,14 @@ const HeroHeader = () => {
             <div className="flex items-center gap-3 sm:gap-5 shrink-0">
               {user ? (
                 <div className="hidden lg:flex items-center gap-4">
+                  {user.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      className="text-white/70 text-[13px] font-medium hover:text-white transition-colors"
+                    >
+                      Admin panel
+                    </Link>
+                  )}
                   <div className="flex items-center gap-2.5">
                     <img
                       src={avatarSrc}
@@ -191,6 +199,15 @@ const HeroHeader = () => {
                   <p className="text-xs text-white/40 truncate">{user.email}</p>
                 </div>
               </div>
+              {user.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  onClick={close}
+                  className="btn-pill w-full justify-center text-sm py-4"
+                >
+                  Admin panel
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="btn-pill-light w-full justify-center text-sm py-4"

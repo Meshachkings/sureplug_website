@@ -22,7 +22,7 @@ const Login = () => {
         { email, password }
       );
       login(res.data.token, res.data.user);
-      navigate('/taskers');
+      navigate(res.data.user.role === 'admin' ? '/admin' : '/taskers');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
     } finally {
@@ -93,6 +93,19 @@ const Login = () => {
         <Link to="/become-a-provider" className="btn-pill-outline w-full">
           Become a provider
         </Link>
+      </div>
+
+      <div className="mt-4 text-center">
+        <p className="text-xs text-gray-400">
+          Admin?{' '}
+          <Link to="/login" className="font-semibold text-gray-500 hover:text-gray-700">
+            Use your admin credentials above
+          </Link>
+          {' '}or{' '}
+          <Link to="/admin" className="font-semibold text-mint hover:text-mint-dark">
+            Go to admin panel →
+          </Link>
+        </p>
       </div>
     </AuthLayout>
   );

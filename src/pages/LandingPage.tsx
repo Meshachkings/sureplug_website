@@ -247,7 +247,17 @@ const LandingPage = () => {
   useEffect(() => {
     api
       .get<ApiResponse<{ services: ApiService[] }>>('/services/public?limit=8')
-      .then((res) => setShowcaseTaskers(res.data.services.map(mapServiceToTasker)))
+      .then((res) => {
+        const seen = new Set<string>();
+        const unique = res.data.services
+          .map(mapServiceToTasker)
+          .filter((t) => {
+            if (seen.has(t.id)) return false;
+            seen.add(t.id);
+            return true;
+          });
+        setShowcaseTaskers(unique);
+      })
       .catch(() => {});
   }, []);
 
