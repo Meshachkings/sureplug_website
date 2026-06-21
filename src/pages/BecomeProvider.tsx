@@ -1,325 +1,385 @@
-import { FormEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
-import HeroHeader from '../components/HeroHeader';
-import { taskerCategories } from '../data/taskers';
+import {
+  CheckmarkCircle01Icon,
+  ArrowRight01Icon,
+  Certificate01Icon,
+  UserAdd01Icon,
+} from '@hugeicons/core-free-icons';
+import AuthLayout from '../components/AuthLayout';
+import OtpInput from '../components/OtpInput';
+import { api, type ApiResponse, type User } from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
-type ProviderForm = {
-  fullName: string;
-  email: string;
-  phone: string;
-  category: string;
-  role: string;
-  city: string;
-  experience: string;
-  hourlyRate: string;
-  bio: string;
-  agreeTerms: boolean;
-};
+type Step = 'register' | 'verify' | 'upgrade' | 'badge';
 
-const steps = ['Account', 'Skills', 'Location', 'Review'];
+const STEPS: Step[] = ['register', 'verify', 'upgrade', 'badge'];
+const STEP_LABELS = ['Account', 'Verify email', 'Upgrade', 'Get verified'];
 
-const initialForm: ProviderForm = {
-  fullName: '',
-  email: '',
-  phone: '',
-  category: '',
-  role: '',
-  city: '',
-  experience: '',
-  hourlyRate: '',
-  bio: '',
-  agreeTerms: false,
-};
+function StepProgress({ step }: { step: Step }) {
+  const idx = STEPS.indexOf(step);
+  return (
+    <div className="flex items-center gap-2 mb-7">
+      {STEPS.map((s, i) => (
+        <div key={s} className="flex-1">
+          <div className={`h-1 rounded-full transition-colors ${i <= idx ? 'bg-[#019B5F]' : 'bg-gray-200'}`} />
+          <p className={`mt-1.5 text-[10px] font-medium truncate ${i <= idx ? 'text-gray-900' : 'text-gray-400'}`}>
+            {STEP_LABELS[i]}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-const BecomeProvider = () => {
-  const [step, setStep] = useState(0);
-  const [form, setForm] = useState<ProviderForm>(initialForm);
-  const [submitted, setSubmitted] = useState(false);
+export default function BecomeProvider() {
+  const navigate = useNavigate();
+  const { user, login, updateUser } = useAuth();
 
-  const categories = taskerCategories.filter((item) => item !== 'All');
+  const [step, setStep] = useState<Step>('register');
 
-  const update = (field: keyof ProviderForm, value: string | boolean) => {
-    setForm((current) => ({ ...current, [field]: value }));
-  };
+  // register fields
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
 
-  const next = () => setStep((current) => Math.min(current + 1, steps.length - 1));
-  const back = () => setStep((current) => Math.max(current - 1, 0));
+  // otp
+  const [otp, setOtp] = useState('');
+  const [resendMsg, setResendMsg] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
 
-  const handleStepSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    if (step < steps.length - 1) {
-      next();
-      return;
+  // shared
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // badge
+  const [badgeLoading, setBadgeLoading] = useState(false);
+  const [badgeAmount, setBadgeAmount] = useState(5000);
+
+  // track which email is pending verification
+  const pendingEmail = useRef(email);
+
+  // If already logged in, skip to the right step
+  useEffect(() => {
+    if (!user) return;
+    if (user.role === 'seller' || user.role === 'admin') {
+      setStep('badge');
+    } else {
+      setStep('upgrade');
     }
-    setSubmitted(true);
+  }, []);   // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Step 1: Register ───────────────────────────────────────────────────────
+  const handleRegister = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await api.post<ApiResponse<unknown>>('/auth/register', {
+        firstName,
+        lastName,
+        email,
+        phone,
+        password,
+      });
+      pendingEmail.current = email;
+      setStep('verify');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (submitted) {
-    return (
-      <div className="bg-white text-gray-900 min-h-screen overflow-x-hidden">
-        <HeroHeader />
-        <section className="hero-grain relative overflow-hidden rounded-b-[1.75rem] sm:rounded-b-[2.5rem]">
-        </section>
-        <main className="max-w-md mx-auto px-4 py-12 sm:py-16 text-center">
-          <div className="profile-card p-8">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-mint/10 text-mint mx-auto">
-              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={28} color="#019B5F" strokeWidth={2} />
-            </span>
-            <h1 className="mt-5 text-xl sm:text-2xl font-semibold text-gray-900">Application submitted</h1>
-            <p className="mt-3 text-sm text-gray-500 leading-relaxed">
-              Thanks, {form.fullName.split(' ')[0]}! Our team will review your profile and contact you
-              within 2–3 business days.
-            </p>
-            <div className="mt-6 flex flex-col gap-3">
-              <Link to="/login" className="btn-pill w-full">
-                Sign in to your account
-              </Link>
-              <Link to="/" className="btn-pill-outline w-full">
-                Back to home
-              </Link>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  // ── Step 2: Verify OTP → auto-login → auto-upgrade ────────────────────────
+  const handleVerify = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post<ApiResponse<{ token: string; user: User }>>(
+        '/auth/verify-otp',
+        { email: pendingEmail.current, code: otp }
+      );
+      const { token: newToken, user: newUser } = res.data;
+      login(newToken, newUser);
+
+      // immediately upgrade role
+      await api.post<ApiResponse<unknown>>('/users/become-provider', {}, true);
+      updateUser({ role: 'seller' });
+      setStep('badge');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResendMsg('');
+    setError('');
+    setResendLoading(true);
+    try {
+      await api.post<ApiResponse<unknown>>('/auth/resend-otp', { email: pendingEmail.current });
+      setResendMsg('A new code has been sent to your email.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to resend code.');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  // ── Step 3: Upgrade (already logged in as user) ────────────────────────────
+  const handleUpgrade = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await api.post<ApiResponse<unknown>>('/users/become-provider', {}, true);
+      updateUser({ role: 'seller' });
+      setStep('badge');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upgrade failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Step 4: Pay for verification badge ─────────────────────────────────────
+  const handlePayForBadge = async () => {
+    setError('');
+    setBadgeLoading(true);
+    try {
+      const res = await api.post<ApiResponse<{ authorization_url: string; reference: string; amount: number }>>(
+        '/verification/initialize',
+        {},
+        true
+      );
+      setBadgeAmount(res.data.amount);
+      window.location.href = res.data.authorization_url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not start payment. Please try again.');
+      setBadgeLoading(false);
+    }
+  };
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  const titles: Record<Step, { title: string; subtitle: string }> = {
+    register: {
+      title: 'Join as a provider',
+      subtitle: 'Create your account to start offering services on SurePlug.',
+    },
+    verify: {
+      title: 'Verify your email',
+      subtitle: `We sent a 6-digit code to ${pendingEmail.current || 'your email'}. Enter it below.`,
+    },
+    upgrade: {
+      title: 'Become a provider',
+      subtitle: 'One tap to upgrade your account and start listing services.',
+    },
+    badge: {
+      title: 'Get your verified badge',
+      subtitle: 'Stand out to customers with an official SurePlug verification badge.',
+    },
+  };
+
+  const { title, subtitle } = titles[step];
 
   return (
-    <div className="bg-white text-gray-900 min-h-screen overflow-x-hidden">
-      <HeroHeader />
-      <section className="hero-grain relative overflow-hidden rounded-b-[1.75rem] sm:rounded-b-[2.5rem]">
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <p className="text-white/50 text-[11px] font-medium uppercase tracking-[0.18em] mb-2">
-            Become a provider
-          </p>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
-            Join SurePlug as a tasker
-          </h1>
-          <p className="mt-2 text-sm sm:text-base text-white/65 max-w-xl">
-            Share your skills, set your rates, and start earning on your schedule.
-          </p>
-        </div>
-      </section>
+    <AuthLayout
+      title={title}
+      subtitle={subtitle}
+      backTo={step === 'register' ? { label: 'Back to home', href: '/' } : undefined}
+    >
+      <StepProgress step={step} />
 
-      <main className="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <div className="mb-8">
-          <div className="flex items-center justify-between gap-2">
-            {steps.map((label, index) => (
-              <div key={label} className="flex-1">
-                <div
-                  className={`h-1 rounded-full transition-colors ${
-                    index <= step ? 'bg-mint' : 'bg-gray-200'
-                  }`}
-                />
-                <p
-                  className={`mt-2 text-[10px] sm:text-xs font-medium truncate ${
-                    index <= step ? 'text-gray-900' : 'text-gray-400'
-                  }`}
-                >
-                  {label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="profile-card p-6 sm:p-8">
-          <form onSubmit={handleStepSubmit} className="space-y-4">
-            {step === 0 && (
-              <>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Create your account</h2>
-                <p className="text-sm text-gray-500 mb-4">Basic details to get started.</p>
-                <div>
-                  <label htmlFor="fullName" className="auth-label">Full name</label>
-                  <input
-                    id="fullName"
-                    required
-                    value={form.fullName}
-                    onChange={(e) => update('fullName', e.target.value)}
-                    className="auth-input"
-                    placeholder="Paul Liam"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="auth-label">Email address</label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={(e) => update('email', e.target.value)}
-                    className="auth-input"
-                    placeholder="you@example.com"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="phone" className="auth-label">Phone number</label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    required
-                    value={form.phone}
-                    onChange={(e) => update('phone', e.target.value)}
-                    className="auth-input"
-                    placeholder="+234 800 000 0000"
-                  />
-                </div>
-              </>
-            )}
-
-            {step === 1 && (
-              <>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Your skills</h2>
-                <p className="text-sm text-gray-500 mb-4">Tell us what services you offer.</p>
-                <div>
-                  <label htmlFor="category" className="auth-label">Primary category</label>
-                  <select
-                    id="category"
-                    required
-                    value={form.category}
-                    onChange={(e) => update('category', e.target.value)}
-                    className="auth-select"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="role" className="auth-label">Professional title</label>
-                  <input
-                    id="role"
-                    required
-                    value={form.role}
-                    onChange={(e) => update('role', e.target.value)}
-                    className="auth-input"
-                    placeholder="Electrician, Cleaner, Plumber..."
-                  />
-                </div>
-                <div>
-                  <label htmlFor="experience" className="auth-label">Years of experience</label>
-                  <select
-                    id="experience"
-                    required
-                    value={form.experience}
-                    onChange={(e) => update('experience', e.target.value)}
-                    className="auth-select"
-                  >
-                    <option value="">Select experience</option>
-                    <option value="0-1">Less than 1 year</option>
-                    <option value="1-3">1–3 years</option>
-                    <option value="3-5">3–5 years</option>
-                    <option value="5+">5+ years</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="hourlyRate" className="auth-label">Hourly rate (₦)</label>
-                  <input
-                    id="hourlyRate"
-                    type="number"
-                    required
-                    min={1000}
-                    step={500}
-                    value={form.hourlyRate}
-                    onChange={(e) => update('hourlyRate', e.target.value)}
-                    className="auth-input"
-                    placeholder="10000"
-                  />
-                </div>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Location & availability</h2>
-                <p className="text-sm text-gray-500 mb-4">Where do you work and when are you available?</p>
-                <div>
-                  <label htmlFor="city" className="auth-label">City</label>
-                  <input
-                    id="city"
-                    required
-                    value={form.city}
-                    onChange={(e) => update('city', e.target.value)}
-                    className="auth-input"
-                    placeholder="Lagos, Abuja, Port Harcourt..."
-                  />
-                </div>
-                <div>
-                  <label htmlFor="bio" className="auth-label">Short bio</label>
-                  <textarea
-                    id="bio"
-                    required
-                    rows={4}
-                    value={form.bio}
-                    onChange={(e) => update('bio', e.target.value)}
-                    className="auth-input resize-none"
-                    placeholder="Briefly describe your experience and the services you offer."
-                  />
-                </div>
-              </>
-            )}
-
-            {step === 3 && (
-              <>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">Review your application</h2>
-                <p className="text-sm text-gray-500 mb-4">Confirm your details before submitting.</p>
-                <dl className="space-y-3 text-sm">
-                  {[
-                    ['Name', form.fullName],
-                    ['Email', form.email],
-                    ['Phone', form.phone],
-                    ['Category', form.category],
-                    ['Title', form.role],
-                    ['Experience', form.experience ? `${form.experience} years` : ''],
-                    ['Hourly rate', form.hourlyRate ? `₦${Number(form.hourlyRate).toLocaleString()}/hr` : ''],
-                    ['City', form.city],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex justify-between gap-4 py-2 border-b border-gray-100 last:border-0">
-                      <dt className="text-gray-500">{label}</dt>
-                      <dd className="font-medium text-gray-900 text-right">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <label className="flex items-start gap-3 mt-4 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    required
-                    checked={form.agreeTerms}
-                    onChange={(e) => update('agreeTerms', e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-mint focus:ring-mint"
-                  />
-                  <span className="text-sm text-gray-600 leading-relaxed">
-                    I agree to SurePlug&apos;s provider terms and confirm that my information is accurate.
-                  </span>
-                </label>
-              </>
-            )}
-
-            <div className="flex gap-3 pt-4">
-              {step > 0 && (
-                <button type="button" onClick={back} className="btn-pill-outline flex-1">
-                  Back
-                </button>
-              )}
-              <button type="submit" className="btn-pill flex-1">
-                {step === steps.length - 1 ? 'Submit application' : 'Continue'}
-              </button>
+      {/* ── Register ── */}
+      {step === 'register' && (
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="firstName" className="auth-label">First name</label>
+              <input
+                id="firstName"
+                required
+                autoComplete="given-name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Ada"
+                className="auth-input"
+              />
             </div>
-          </form>
-        </div>
+            <div>
+              <label htmlFor="lastName" className="auth-label">Last name</label>
+              <input
+                id="lastName"
+                required
+                autoComplete="family-name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Okonkwo"
+                className="auth-input"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="email" className="auth-label">Email address</label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="auth-input"
+            />
+          </div>
+          <div>
+            <label htmlFor="phone" className="auth-label">Phone number</label>
+            <input
+              id="phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="08012345678"
+              className="auth-input"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="auth-label">Password</label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 8 characters"
+              className="auth-input"
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button type="submit" className="btn-pill w-full" disabled={loading}>
+            {loading ? 'Creating account…' : 'Continue'}
+          </button>
+          <p className="text-xs text-gray-400 text-center leading-relaxed">
+            By continuing you agree to SurePlug's Terms of Use and Privacy Policy.
+          </p>
+        </form>
+      )}
 
+      {/* ── Verify OTP ── */}
+      {step === 'verify' && (
+        <form onSubmit={handleVerify} className="space-y-6">
+          <div>
+            <label className="auth-label">Verification code</label>
+            <OtpInput value={otp} onChange={setOtp} />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          {resendMsg && <p className="text-sm text-[#019B5F]">{resendMsg}</p>}
+          <button type="submit" className="btn-pill w-full" disabled={otp.length < 6 || loading}>
+            {loading ? 'Verifying…' : 'Verify & continue'}
+          </button>
+          <p className="text-center text-sm text-gray-500">
+            Didn't receive a code?{' '}
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resendLoading}
+              className="font-semibold text-[#019B5F] hover:text-[#017a4c] disabled:opacity-50"
+            >
+              {resendLoading ? 'Sending…' : 'Resend code'}
+            </button>
+          </p>
+        </form>
+      )}
+
+      {/* ── Upgrade ── */}
+      {step === 'upgrade' && (
+        <div className="space-y-5">
+          <div className="rounded-2xl bg-[#019B5F]/6 border border-[#019B5F]/15 p-5 flex gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#019B5F]/10 flex items-center justify-center shrink-0">
+              <HugeiconsIcon icon={UserAdd01Icon} size={18} color="#019B5F" strokeWidth={2} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900 mb-1">Provider account</p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Upgrading to a provider account lets you list services, receive bookings, and earn on your schedule. Free to activate.
+              </p>
+            </div>
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button className="btn-pill w-full" onClick={handleUpgrade} disabled={loading}>
+            {loading ? 'Upgrading…' : 'Become a provider'}
+          </button>
+          <button
+            className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={() => navigate('/taskers')}
+          >
+            Skip for now
+          </button>
+        </div>
+      )}
+
+      {/* ── Badge ── */}
+      {step === 'badge' && (
+        <div className="space-y-5">
+          <div className="rounded-2xl bg-amber-50 border border-amber-200/60 p-5 flex gap-4">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <HugeiconsIcon icon={Certificate01Icon} size={18} color="#d97706" strokeWidth={2} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900 mb-1">SurePlug Verified badge</p>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Verified providers appear higher in search results and earn 3× more bookings on average. A one-time fee of <span className="font-semibold text-gray-900">₦{badgeAmount.toLocaleString()}</span>.
+              </p>
+            </div>
+          </div>
+
+          <ul className="space-y-2.5">
+            {[
+              'Verified badge on your profile',
+              'Priority ranking in search results',
+              'Higher customer trust and conversion',
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-2.5 text-sm text-gray-600">
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} color="#019B5F" strokeWidth={2} />
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <button className="btn-pill w-full" onClick={handlePayForBadge} disabled={badgeLoading}>
+            {badgeLoading ? 'Redirecting to payment…' : `Pay ₦${badgeAmount.toLocaleString()} to get verified`}
+          </button>
+
+          <button
+            className="w-full flex items-center justify-center gap-1.5 text-sm font-medium text-[#019B5F] hover:text-[#017a4c] transition-colors"
+            onClick={() => navigate('/taskers')}
+          >
+            Skip for now
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} color="currentColor" strokeWidth={2} />
+          </button>
+        </div>
+      )}
+
+      {step === 'register' && (
         <p className="mt-6 text-center text-sm text-gray-500">
           Already a provider?{' '}
-          <Link to="/login" className="font-semibold text-mint hover:text-mint-dark">
+          <Link to="/login" className="font-semibold text-[#019B5F] hover:text-[#017a4c]">
             Sign in
           </Link>
         </p>
-      </main>
-    </div>
+      )}
+    </AuthLayout>
   );
-};
-
-export default BecomeProvider;
+}

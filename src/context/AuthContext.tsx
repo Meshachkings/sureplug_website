@@ -9,6 +9,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login: (token: string, user: User) => void;
   logout: () => void;
+  updateUser: (patch: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -39,8 +40,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ token: null, user: null });
   };
 
+  const updateUser = (patch: Partial<User>) => {
+    setState((prev) => {
+      if (!prev.user) return prev;
+      const updated = { ...prev.user, ...patch };
+      localStorage.setItem('sp_user', JSON.stringify(updated));
+      return { ...prev, user: updated };
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ ...state, login, logout }}>
+    <AuthContext.Provider value={{ ...state, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
