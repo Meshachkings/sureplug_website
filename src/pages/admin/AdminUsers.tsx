@@ -190,15 +190,15 @@ export default function AdminUsers() {
             <div className="grid grid-cols-3 divide-x divide-gray-50">
               <div className="px-4 py-3">
                 <p className="text-[10px] font-semibold text-gray-400 mb-1">Customer</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byAccountType.customer.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byAccountType?.customer ?? 0).toLocaleString()}</p>
               </div>
               <div className="px-4 py-3">
                 <p className="text-[10px] font-semibold text-teal-500 mb-1">Handyman</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byAccountType.handyman.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byAccountType?.handyman ?? 0).toLocaleString()}</p>
               </div>
               <div className="px-4 py-3">
                 <p className="text-[10px] font-semibold text-amber-500 mb-1">Business</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byAccountType.business.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byAccountType?.business ?? 0).toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -210,19 +210,19 @@ export default function AdminUsers() {
             <div className="grid grid-cols-4 divide-x divide-gray-50">
               <div className="px-3 py-3">
                 <p className="text-[10px] font-semibold text-gray-400 mb-1">User</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byRole.user.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byRole?.user ?? 0).toLocaleString()}</p>
               </div>
               <div className="px-3 py-3">
                 <p className="text-[10px] font-semibold text-blue-500 mb-1">Seller</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byRole.seller.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byRole?.seller ?? 0).toLocaleString()}</p>
               </div>
               <div className="px-3 py-3">
                 <p className="text-[10px] font-semibold text-violet-500 mb-1">Subadmin</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byRole.subadmin.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byRole?.subadmin ?? 0).toLocaleString()}</p>
               </div>
               <div className="px-3 py-3">
                 <p className="text-[10px] font-semibold text-purple-600 mb-1">Admin</p>
-                <p className="text-lg font-bold text-gray-900 tabular-nums">{overview.byRole.admin.toLocaleString()}</p>
+                <p className="text-lg font-bold text-gray-900 tabular-nums">{(overview.byRole?.admin ?? 0).toLocaleString()}</p>
               </div>
             </div>
           </div>

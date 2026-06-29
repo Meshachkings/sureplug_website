@@ -57,15 +57,15 @@ export interface AdminUser {
 export interface AdminUserStats {
   total: number;
   byAccountType: {
-    customer: number;
-    handyman: number;
-    business: number;
+    customer?: number;
+    handyman?: number;
+    business?: number;
   };
   byRole: {
-    user: number;
-    seller: number;
-    subadmin: number;
-    admin: number;
+    user?: number;
+    seller?: number;
+    subadmin?: number;
+    admin?: number;
   };
 }
 
