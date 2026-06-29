@@ -159,6 +159,41 @@ GET /admin/users?role=seller&search=john&page=1&limit=20
 
 ---
 
+### Get User Overview Stats
+`GET /admin/users/overview`
+
+Returns platform-wide user counts broken down by role and account type. Use this to populate summary cards on the admin users page without paginating through all records.
+
+**Response**
+```json
+{
+  "status": 200,
+  "message": "Users overview fetched",
+  "data": {
+    "total": 142,
+    "byAccountType": {
+      "customer": 98,
+      "handyman": 35,
+      "business": 9
+    },
+    "byRole": {
+      "user": 110,
+      "seller": 28,
+      "subadmin": 3,
+      "admin": 1
+    }
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `total` | Total registered accounts |
+| `byAccountType` | Count per accountType value |
+| `byRole` | Count per role value |
+
+---
+
 ### Get User Detail
 `GET /admin/users/:id`
 
@@ -906,6 +941,7 @@ Sends an in-app notification and FCM push to the entire platform or a specific s
 |--------|----------|-------------|
 | GET | `/admin/dashboard` | Platform-wide stats |
 | GET | `/admin/users` | List all users |
+| GET | `/admin/users/overview` | User counts by role and account type |
 | GET | `/admin/users/:id` | User detail + stats |
 | PATCH | `/admin/users/:id/role` | Change user role |
 | PATCH | `/admin/users/:id/ban` | Block / unblock user |

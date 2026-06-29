@@ -33,6 +33,7 @@ export interface AdminUser {
   lastName: string;
   email: string;
   phone?: string;
+  dob?: string;
   role: 'user' | 'seller' | 'subadmin' | 'admin';
   accountType?: 'customer' | 'handyman' | 'business';
   suretag?: string;
@@ -43,8 +44,29 @@ export interface AdminUser {
   businessVerified?: boolean;
   autoRenewEnabled?: boolean;
   isBlocked: boolean;
-  avatar: { url: string } | null;
+  avatar: { url: string; size?: number; type?: string } | null;
+  location?: {
+    type: string;
+    coordinates: { longitude: number; latitude: number };
+  } | null;
+  kyc?: boolean;
   createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AdminUserStats {
+  total: number;
+  byAccountType: {
+    customer: number;
+    handyman: number;
+    business: number;
+  };
+  byRole: {
+    user: number;
+    seller: number;
+    subadmin: number;
+    admin: number;
+  };
 }
 
 export interface AdminUserDetail {
