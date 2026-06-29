@@ -26,7 +26,7 @@ const Navbar = () => {
               Home
             </Link>
             <Link to="/taskers" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
-              Find Taskers
+              Find Plugs
             </Link>
             <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50">
               Profile
@@ -76,9 +76,9 @@ const Navbar = () => {
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}
             >
-              Find Taskers
+              Find Plugs
             </Link>
-            <Link 
+            <Link
               to="/profile" 
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}

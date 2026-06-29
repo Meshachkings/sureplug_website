@@ -101,7 +101,7 @@ export default function AdminDashboard() {
       color: 'bg-blue-500',
     },
     {
-      label: 'Providers',
+      label: 'Plugs',
       value: data.users.providers.toLocaleString(),
       icon: UserIcon,
       color: 'bg-purple-500',

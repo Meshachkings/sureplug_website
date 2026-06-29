@@ -6,11 +6,20 @@ export interface User {
   lastName: string;
   email: string;
   phone?: string;
+  dob?: string;
   bio?: string;
   avatar?: { url: string };
   suretag?: string;
   role?: string;
+  accountType?: 'customer' | 'handyman' | 'business';
+  verified?: boolean;
   providerVerified?: boolean;
+  providerVerificationExpiresAt?: string | null;
+  businessVerified?: boolean;
+  autoRenewEnabled?: boolean;
+  isBlocked?: boolean;
+  permissions?: string[];
+  createdAt?: string;
 }
 
 export interface ApiService {
@@ -96,7 +105,8 @@ async function request<T>(path: string, options: ApiRequestOptions = {}): Promis
   const { auth, ...init } = options;
   const headers = new Headers((init.headers ?? {}) as HeadersInit);
 
-  if (!headers.has('Content-Type')) {
+  // Don't set Content-Type for FormData — browser sets it with boundary
+  if (!headers.has('Content-Type') && !(init.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
 
@@ -121,10 +131,13 @@ export const api = {
     request<T>(path, { method: 'GET', auth }),
 
   post: <T>(path: string, body: unknown, auth = false) =>
-    request<T>(path, { method: 'POST', body: JSON.stringify(body), auth }),
+    request<T>(path, { method: 'POST', body: body instanceof FormData ? body : JSON.stringify(body), auth }),
+
+  put: <T>(path: string, body: unknown, auth = false) =>
+    request<T>(path, { method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body), auth }),
 
   patch: <T>(path: string, body: unknown, auth = false) =>
-    request<T>(path, { method: 'PATCH', body: JSON.stringify(body), auth }),
+    request<T>(path, { method: 'PATCH', body: body instanceof FormData ? body : JSON.stringify(body), auth }),
 
   delete: <T>(path: string, auth = false) =>
     request<T>(path, { method: 'DELETE', auth }),

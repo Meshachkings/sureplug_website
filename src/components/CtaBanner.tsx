@@ -11,14 +11,14 @@ const CtaBanner = () => {
               Ready to Start?
             </h2>
             <p className="mt-3 text-sm sm:text-base text-white/75 leading-relaxed max-w-md">
-              Sign up today and connect with top taskers to get your job done.
+              Sign up today and connect with top plugs to get your job done.
             </p>
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
               <Link to="/become-a-provider" className="btn-pill-lime w-full sm:w-auto sm:min-w-[180px]">
-                Become A Tasker
+                Become A Plug
               </Link>
               <Link to="/taskers" className="btn-pill-cta-secondary w-full sm:w-auto sm:min-w-[180px]">
-                View All Taskers
+                View All Plugs
               </Link>
             </div>
           </div>

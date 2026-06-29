@@ -8,7 +8,7 @@ const logoWhite =
   'https://res.cloudinary.com/dujux4xcs/image/upload/v1743598694/Group_21_1_j2gixb.svg';
 
 export const heroNavLinks = [
-  { label: 'Explore Taskers', href: '/taskers' },
+  { label: 'Explore Plugs', href: '/taskers' },
   { label: 'How it Works', href: '/#how-it-works' },
   { label: 'About Us', href: '/about' },
 ];
@@ -80,12 +80,19 @@ const HeroHeader = () => {
             <div className="flex items-center gap-3 sm:gap-5 shrink-0">
               {user ? (
                 <div className="hidden lg:flex items-center gap-4">
-                  {user.role === 'admin' && (
+                  {(user.role === 'admin' || user.role === 'subadmin') ? (
                     <Link
                       to="/admin"
                       className="text-white/70 text-[13px] font-medium hover:text-white transition-colors"
                     >
                       Admin panel
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/dashboard"
+                      className="text-white/70 text-[13px] font-medium hover:text-white transition-colors"
+                    >
+                      Dashboard
                     </Link>
                   )}
                   <div className="flex items-center gap-2.5">
@@ -199,13 +206,21 @@ const HeroHeader = () => {
                   <p className="text-xs text-white/40 truncate">{user.email}</p>
                 </div>
               </div>
-              {user.role === 'admin' && (
+              {(user.role === 'admin' || user.role === 'subadmin') ? (
                 <Link
                   to="/admin"
                   onClick={close}
                   className="btn-pill w-full justify-center text-sm py-4"
                 >
                   Admin panel
+                </Link>
+              ) : (
+                <Link
+                  to="/dashboard"
+                  onClick={close}
+                  className="btn-pill w-full justify-center text-sm py-4"
+                >
+                  Dashboard
                 </Link>
               )}
               <button

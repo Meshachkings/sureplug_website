@@ -6,18 +6,21 @@ import type { UserRole } from '../../lib/adminApi';
 const ROLES: Array<{ value: UserRole; label: string }> = [
   { value: 'user', label: 'User' },
   { value: 'seller', label: 'Seller' },
+  { value: 'subadmin', label: 'Subadmin' },
   { value: 'admin', label: 'Admin' },
 ];
 
 const ROLE_STYLES: Record<UserRole, string> = {
   user: 'bg-gray-100 text-gray-700',
   seller: 'bg-blue-50 text-blue-700',
+  subadmin: 'bg-slate-100 text-slate-700',
   admin: 'bg-purple-50 text-purple-700',
 };
 
 const ROLE_ACTIVE: Record<UserRole, string> = {
   user: 'bg-gray-100 text-gray-700',
   seller: 'bg-blue-50 text-blue-700',
+  subadmin: 'bg-slate-100 text-slate-700',
   admin: 'bg-purple-50 text-purple-700',
 };
 

@@ -33,10 +33,15 @@ export interface AdminUser {
   lastName: string;
   email: string;
   phone?: string;
-  role: 'user' | 'seller' | 'admin';
+  role: 'user' | 'seller' | 'subadmin' | 'admin';
+  accountType?: 'customer' | 'handyman' | 'business';
   suretag?: string;
+  bio?: string;
   verified: boolean;
   providerVerified: boolean;
+  providerVerificationExpiresAt?: string | null;
+  businessVerified?: boolean;
+  autoRenewEnabled?: boolean;
   isBlocked: boolean;
   avatar: { url: string } | null;
   createdAt: string;
@@ -51,7 +56,7 @@ export interface AdminUserDetail {
   };
 }
 
-export type UserRole = 'user' | 'seller' | 'admin';
+export type UserRole = 'user' | 'seller' | 'subadmin' | 'admin';
 
 // ── Services ──────────────────────────────────────────────────────────────────
 
@@ -137,8 +142,76 @@ export interface AdminVerification {
     lastName: string;
     email: string;
     suretag?: string;
+    accountType?: string;
     providerVerified: boolean;
+    providerVerificationExpiresAt?: string | null;
   };
+}
+
+// ── Business Verifications ────────────────────────────────────────────────────
+
+export type BusinessVerificationStatus =
+  | 'awaiting_payment'
+  | 'awaiting_documents'
+  | 'pending_review'
+  | 'approved'
+  | 'rejected';
+
+export interface AdminBusinessVerification {
+  _id: string;
+  businessName: string;
+  status: BusinessVerificationStatus;
+  paymentStatus?: string;
+  paidAt?: string;
+  adminNote?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  documents: Array<{
+    path: string;
+    filename: string;
+    size: number;
+    mimetype: string;
+  }>;
+  createdAt: string;
+  user: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    accountType?: string;
+    businessVerified: boolean;
+  };
+}
+
+// ── Staff ─────────────────────────────────────────────────────────────────────
+
+export const STAFF_PERMISSIONS = [
+  'view_dashboard',
+  'manage_users',
+  'manage_services',
+  'manage_bookings',
+  'manage_reviews',
+  'manage_verifications',
+  'manage_business_verifications',
+  'manage_categories',
+  'manage_contacts',
+  'manage_waitlist',
+  'send_notifications',
+  'manage_staff',
+] as const;
+
+export type StaffPermission = (typeof STAFF_PERMISSIONS)[number];
+
+export interface AdminStaff {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  role: 'subadmin';
+  verified: boolean;
+  permissions: StaffPermission[];
+  createdAt: string;
 }
 
 // ── Contacts ──────────────────────────────────────────────────────────────────

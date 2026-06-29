@@ -3,12 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import { api, type ApiResponse, type User } from '../lib/api';
 
+type AccountType = 'customer' | 'handyman' | 'business';
+
+const ACCOUNT_TYPES: Array<{ value: AccountType; label: string; description: string }> = [
+  { value: 'customer', label: 'Customer', description: 'Book plugs for tasks' },
+  { value: 'handyman', label: 'Handyman', description: 'Offer individual services' },
+  { value: 'business', label: 'Business', description: 'Register a business account' },
+];
+
 const Signup = () => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [accountType, setAccountType] = useState<AccountType>('customer');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +35,7 @@ const Signup = () => {
         email,
         phone,
         password,
+        accountType,
       });
       navigate('/verify-otp', { state: { email, flow: 'signup' } });
     } catch (err) {
@@ -38,10 +48,36 @@ const Signup = () => {
   return (
     <AuthLayout
       title="Create your account"
-      subtitle="Join SurePlug to book trusted taskers and get help when you need it."
+      subtitle="Join SurePlug to book trusted plugs and get help when you need it."
       backTo={{ label: 'Back to home', href: '/' }}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="auth-label">Account type</label>
+          <div className="grid grid-cols-3 gap-2">
+            {ACCOUNT_TYPES.map((type) => {
+              const active = accountType === type.value;
+              return (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => setAccountType(type.value)}
+                  className={`flex flex-col items-center text-center px-2 py-3 rounded-xl border transition-colors ${
+                    active
+                      ? 'border-[#019B5F] bg-[#019B5F]/6 text-[#019B5F]'
+                      : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className={`text-xs font-semibold ${active ? 'text-[#019B5F]' : 'text-gray-700'}`}>
+                    {type.label}
+                  </span>
+                  <span className="text-[10px] mt-0.5 leading-tight">{type.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div>
           <label htmlFor="fullName" className="auth-label">
             Full name

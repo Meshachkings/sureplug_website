@@ -22,7 +22,8 @@ const Login = () => {
         { email, password }
       );
       login(res.data.token, res.data.user);
-      navigate(res.data.user.role === 'admin' ? '/admin' : '/taskers');
+      const role = res.data.user.role;
+      navigate(role === 'admin' || role === 'subadmin' ? '/admin' : '/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
     } finally {
@@ -33,7 +34,7 @@ const Login = () => {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to book taskers, manage orders, and track your requests."
+      subtitle="Sign in to book plugs, manage orders, and track your requests."
       backTo={{ label: 'Back to home', href: '/' }}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,7 +92,7 @@ const Login = () => {
       <div className="mt-6 pt-6 border-t border-gray-100 text-center">
         <p className="text-sm text-gray-500 mb-3">Want to offer services?</p>
         <Link to="/become-a-provider" className="btn-pill-outline w-full">
-          Become a provider
+          Become a plug
         </Link>
       </div>
 

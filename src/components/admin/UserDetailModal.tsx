@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Cancel01Icon,
-  CheckmarkBadge01Icon,
   Delete02Icon,
   Package01Icon,
   Bookmark01Icon,
   FavouriteIcon,
 } from '@hugeicons/core-free-icons';
+import { VerifiedBadge } from '../VerifiedBadge';
 import { api, type ApiResponse, type AdminUserDetail, type UserRole } from '../../lib/adminApi';
 import type { AdminUser } from '../../lib/adminApi';
 import StatusBadge from './StatusBadge';
@@ -97,9 +97,7 @@ export default function UserDetailModal({ user, onClose, onDelete, onRoleChange,
                 <p className="text-base font-semibold text-gray-900">
                   {user.firstName} {user.lastName}
                 </p>
-                {user.providerVerified && (
-                  <HugeiconsIcon icon={CheckmarkBadge01Icon} size={15} color="#019B5F" strokeWidth={2} />
-                )}
+                {user.providerVerified && <VerifiedBadge size={17} />}
               </div>
               <p className="text-sm text-gray-400 truncate">{user.email}</p>
               {user.suretag && (

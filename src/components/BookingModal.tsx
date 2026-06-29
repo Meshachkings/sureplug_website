@@ -65,10 +65,10 @@ const BookingModal = ({ onClose }: Props) => {
             id="booking-modal-title"
             className="text-xl sm:text-[1.35rem] font-semibold text-white leading-snug tracking-tight"
           >
-            Get the app to book taskers
+            Get the app to book plugs
           </h2>
           <p className="mt-2 sm:mt-2.5 text-sm text-white/50 leading-relaxed">
-            Download SurePlug to book, message providers, and track your requests in real time.
+            Download SurePlug to book, message plugs, and track your requests in real time.
           </p>
         </div>
 

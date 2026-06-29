@@ -13,6 +13,12 @@ import VerifyOtp from './pages/VerifyOtp'
 import ResetPassword from './pages/ResetPassword'
 import BecomeProvider from './pages/BecomeProvider'
 import NotFound from './pages/NotFound'
+import DashboardGuard from './components/DashboardGuard'
+import DashboardLayout from './pages/dashboard/DashboardLayout'
+import DashboardOverview from './pages/dashboard/DashboardOverview'
+import DashboardProfile from './pages/dashboard/DashboardProfile'
+import DashboardServices from './pages/dashboard/DashboardServices'
+import DashboardVerification from './pages/dashboard/DashboardVerification'
 import AdminGuard from './components/admin/AdminGuard'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -24,6 +30,8 @@ import AdminVerifications from './pages/admin/AdminVerifications'
 import AdminContacts from './pages/admin/AdminContacts'
 import AdminWaitlist from './pages/admin/AdminWaitlist'
 import AdminNotifications from './pages/admin/AdminNotifications'
+import AdminBusinessVerifications from './pages/admin/AdminBusinessVerifications'
+import AdminStaff from './pages/admin/AdminStaff'
 
 function App() {
   return (
@@ -45,6 +53,15 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/become-a-provider" element={<BecomeProvider />} />
 
+            <Route element={<DashboardGuard />}>
+              <Route element={<DashboardLayout />}>
+                <Route path="/dashboard" element={<DashboardOverview />} />
+                <Route path="/dashboard/profile" element={<DashboardProfile />} />
+                <Route path="/dashboard/services" element={<DashboardServices />} />
+                <Route path="/dashboard/verification" element={<DashboardVerification />} />
+              </Route>
+            </Route>
+
             <Route element={<AdminGuard />}>
               <Route element={<AdminLayout />}>
                 <Route path="/admin" element={<AdminDashboard />} />
@@ -56,6 +73,8 @@ function App() {
                 <Route path="/admin/contacts" element={<AdminContacts />} />
                 <Route path="/admin/waitlist" element={<AdminWaitlist />} />
                 <Route path="/admin/notifications" element={<AdminNotifications />} />
+                <Route path="/admin/business-verifications" element={<AdminBusinessVerifications />} />
+                <Route path="/admin/staff" element={<AdminStaff />} />
               </Route>
             </Route>
 

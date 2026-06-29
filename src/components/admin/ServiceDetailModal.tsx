@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, CheckmarkBadge01Icon, Delete02Icon } from '@hugeicons/core-free-icons';
+import { Cancel01Icon, Delete02Icon } from '@hugeicons/core-free-icons';
+import { VerifiedBadge } from '../VerifiedBadge';
 import type { AdminService } from '../../lib/adminApi';
 import StatusBadge from './StatusBadge';
 import { formatNaira } from '../../lib/format';
@@ -79,9 +80,9 @@ export default function ServiceDetailModal({ service, onClose, onDelete }: Props
           <Row label="Status"><StatusBadge status={service.status} /></Row>
           <Row label="Created">{new Date(service.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}</Row>
 
-          {/* Provider section */}
+          {/* Plug section */}
           <div className="mt-3 mb-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-3">Provider</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-3">Plug</p>
             <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
               {service.provider.avatar?.url ? (
                 <img
@@ -99,9 +100,7 @@ export default function ServiceDetailModal({ service, onClose, onDelete }: Props
                   <p className="text-sm font-semibold text-gray-900 truncate">
                     {service.provider.firstName} {service.provider.lastName}
                   </p>
-                  {service.provider.providerVerified && (
-                    <HugeiconsIcon icon={CheckmarkBadge01Icon} size={14} color="#019B5F" strokeWidth={2} />
-                  )}
+                  {service.provider.providerVerified && <VerifiedBadge size={16} />}
                 </div>
                 <p className="text-xs text-gray-400 truncate">{service.provider.email}</p>
                 {service.provider.suretag && (

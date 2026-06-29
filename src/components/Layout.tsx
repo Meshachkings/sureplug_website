@@ -57,7 +57,7 @@ const Layout = ({ children }: LayoutProps) => {
                 About
               </Link>
               <Link to="/taskers" className="text-gray-600 hover:text-[#019B5F] transition-colors duration-200">
-                Taskers
+                Plugs
               </Link>
               <Link to="/contact" className="btn-pill">
                 Contact us
@@ -105,7 +105,7 @@ const Layout = ({ children }: LayoutProps) => {
                 className="block text-lg text-gray-600 hover:text-[#019B5F] transition-colors duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Taskers
+                Plugs
               </Link>
               <Link 
                 to="/contact" 
@@ -146,7 +146,7 @@ const Layout = ({ children }: LayoutProps) => {
                 loading="lazy"
               />
               <p className="text-gray-400 text-sm sm:text-base">
-                Connecting you with trusted service providers in your area.
+                Connecting you with trusted plugs in your area.
               </p>
               <div className="flex space-x-4">
                 {Object.entries(socialIcons).map(([name, icon]) => (

@@ -130,10 +130,10 @@ const Taskers = () => {
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-14">
           <div className="max-w-2xl">
             <p className="text-white/50 text-[11px] font-medium uppercase tracking-[0.18em] mb-3">
-              Providers
+              Plugs
             </p>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white tracking-tight leading-tight">
-              Find skilled taskers near you
+              Find skilled plugs near you
             </h1>
             <p className="mt-3 text-sm sm:text-base text-white/65 leading-relaxed max-w-xl">
               Browse verified professionals, compare ratings, and book help for home repairs,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import type { IconSvgElement } from '@hugeicons/react';
@@ -9,6 +9,8 @@ import {
   Bookmark01Icon,
   FavouriteIcon,
   Certificate01Icon,
+  Building04Icon,
+  ShieldUserIcon,
   Mail01Icon,
   Clock01Icon,
   Notification01Icon,
@@ -17,6 +19,7 @@ import {
   Cancel01Icon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '../../context/AuthContext';
+import { api, type ApiResponse, type ApiPagination } from '../../lib/adminApi';
 
 const LOGO_WHITE = 'https://res.cloudinary.com/dujux4xcs/image/upload/v1743598694/Group_21_1_j2gixb.svg';
 
@@ -24,26 +27,34 @@ interface NavItem {
   label: string;
   to: string;
   icon: IconSvgElement;
+  permission?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard',     to: '/admin',                icon: DashboardSquare01Icon },
-  { label: 'Users',         to: '/admin/users',          icon: UserGroupIcon },
-  { label: 'Services',      to: '/admin/services',       icon: Package01Icon },
-  { label: 'Bookings',      to: '/admin/bookings',       icon: Bookmark01Icon },
-  { label: 'Reviews',       to: '/admin/reviews',        icon: FavouriteIcon },
-  { label: 'Verifications', to: '/admin/verifications',  icon: Certificate01Icon },
-  { label: 'Contacts',      to: '/admin/contacts',       icon: Mail01Icon },
-  { label: 'Waitlist',      to: '/admin/waitlist',       icon: Clock01Icon },
-  { label: 'Notifications', to: '/admin/notifications',  icon: Notification01Icon },
+  { label: 'Dashboard',           to: '/admin',                         icon: DashboardSquare01Icon, permission: 'view_dashboard' },
+  { label: 'Users',               to: '/admin/users',                   icon: UserGroupIcon,          permission: 'manage_users' },
+  { label: 'Services',            to: '/admin/services',                icon: Package01Icon,          permission: 'manage_services' },
+  { label: 'Bookings',            to: '/admin/bookings',                icon: Bookmark01Icon,         permission: 'manage_bookings' },
+  { label: 'Reviews',             to: '/admin/reviews',                 icon: FavouriteIcon,          permission: 'manage_reviews' },
+  { label: 'Verifications',       to: '/admin/verifications',           icon: Certificate01Icon,      permission: 'manage_verifications' },
+  { label: 'Business Verify',     to: '/admin/business-verifications',  icon: Building04Icon,         permission: 'manage_business_verifications' },
+  { label: 'Staff',               to: '/admin/staff',                   icon: ShieldUserIcon,         permission: 'manage_staff' },
+  { label: 'Contacts',            to: '/admin/contacts',                icon: Mail01Icon,             permission: 'manage_contacts' },
+  { label: 'Waitlist',            to: '/admin/waitlist',                icon: Clock01Icon,            permission: 'manage_waitlist' },
+  { label: 'Notifications',       to: '/admin/notifications',           icon: Notification01Icon,     permission: 'send_notifications' },
 ];
 
+const PAGE_TITLES: Record<string, string> = {
+  '/admin/business-verifications': 'Business Verifications',
+  '/admin/staff': 'Staff Management',
+};
+
 function getPageTitle(pathname: string): string {
-  return navItems.find((n) => n.to === pathname)?.label ?? 'Admin';
+  return PAGE_TITLES[pathname] ?? navItems.find((n) => n.to === pathname)?.label ?? 'Admin';
 }
 
 export default function AdminLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,6 +65,24 @@ export default function AdminLayout() {
     logout();
     navigate('/login');
   };
+
+  // For subadmins: fetch permissions from the staff list if not already in the user object
+  useEffect(() => {
+    if (user?.role !== 'subadmin' || user?.permissions?.length) return;
+    api.get<ApiResponse<{ staff: Array<{ _id: string; permissions: string[] }>; pagination: ApiPagination }>>(
+      '/admin/staff?limit=100',
+      true
+    ).then((res) => {
+      const me = (res.data.staff ?? []).find((s) => s._id === user._id);
+      if (me) updateUser({ permissions: me.permissions });
+    }).catch(() => {/* silently ignore */});
+  }, [user?._id, user?.role]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isAdmin = user?.role === 'admin';
+  const permissions = user?.permissions;
+  const visibleNavItems = navItems.filter(({ permission }) =>
+    isAdmin || !permission || (permissions ?? []).includes(permission)
+  );
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -69,7 +98,7 @@ export default function AdminLayout() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ label, to, icon }) => (
+        {visibleNavItems.map(({ label, to, icon }) => (
           <NavLink
             key={to}
             to={to}

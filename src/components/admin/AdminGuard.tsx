@@ -8,7 +8,7 @@ export default function AdminGuard() {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== 'admin') {
+  if (user.role !== 'admin' && user.role !== 'subadmin') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
         <div className="text-center max-w-md">

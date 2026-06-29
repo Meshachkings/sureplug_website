@@ -164,7 +164,7 @@ export default function AdminServices() {
                 <thead>
                   <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
                     <th className="px-4 py-3 text-left">Service</th>
-                    <th className="px-4 py-3 text-left">Provider</th>
+                    <th className="px-4 py-3 text-left">Plug</th>
                     <th className="px-4 py-3 text-left">Category</th>
                     <th className="px-4 py-3 text-left">Price</th>
                     <th className="px-4 py-3 text-left">Status</th>

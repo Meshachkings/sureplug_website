@@ -84,6 +84,7 @@ export default function BecomeProvider() {
         email,
         phone,
         password,
+        accountType: 'handyman',
       });
       pendingEmail.current = email;
       setStep('verify');
@@ -169,7 +170,7 @@ export default function BecomeProvider() {
 
   const titles: Record<Step, { title: string; subtitle: string }> = {
     register: {
-      title: 'Join as a provider',
+      title: 'Join as a plug',
       subtitle: 'Create your account to start offering services on SurePlug.',
     },
     verify: {
@@ -177,7 +178,7 @@ export default function BecomeProvider() {
       subtitle: `We sent a 6-digit code to ${pendingEmail.current || 'your email'}. Enter it below.`,
     },
     upgrade: {
-      title: 'Become a provider',
+      title: 'Become a plug',
       subtitle: 'One tap to upgrade your account and start listing services.',
     },
     badge: {
@@ -309,15 +310,15 @@ export default function BecomeProvider() {
               <HugeiconsIcon icon={UserAdd01Icon} size={18} color="#019B5F" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900 mb-1">Provider account</p>
+              <p className="text-sm font-semibold text-gray-900 mb-1">Plug account</p>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Upgrading to a provider account lets you list services, receive bookings, and earn on your schedule. Free to activate.
+                Upgrading to a plug account lets you list services, receive bookings, and earn on your schedule. Free to activate.
               </p>
             </div>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button className="btn-pill w-full" onClick={handleUpgrade} disabled={loading}>
-            {loading ? 'Upgrading…' : 'Become a provider'}
+            {loading ? 'Upgrading…' : 'Become a plug'}
           </button>
           <button
             className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors"
@@ -374,7 +375,7 @@ export default function BecomeProvider() {
 
       {step === 'register' && (
         <p className="mt-6 text-center text-sm text-gray-500">
-          Already a provider?{' '}
+          Already a plug?{' '}
           <Link to="/login" className="font-semibold text-[#019B5F] hover:text-[#017a4c]">
             Sign in
           </Link>

@@ -4,6 +4,7 @@ import type { AdminVerification, VerificationStatus } from '../../lib/adminApi';
 import StatusBadge from '../../components/admin/StatusBadge';
 import Pagination from '../../components/admin/Pagination';
 import AdminFilterBar, { FilterSelect } from '../../components/admin/AdminFilterBar';
+import ConfirmModal from '../../components/admin/ConfirmModal';
 import { formatNaira } from '../../lib/format';
 
 interface VerificationsResponse {
@@ -25,6 +26,11 @@ export default function AdminVerifications() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [confirm, setConfirm] = useState<{
+    verification: AdminVerification;
+    newState: boolean;
+  } | null>(null);
+  const [apiError, setApiError] = useState('');
 
   const fetchVerifications = useCallback(async () => {
     setLoading(true);
@@ -49,15 +55,15 @@ export default function AdminVerifications() {
     fetchVerifications();
   }, [fetchVerifications]);
 
-  const handleVerifyToggle = async (verification: AdminVerification) => {
+  const handleVerifyToggle = (verification: AdminVerification) => {
     const newState = !verification.user.providerVerified;
-    const action = newState ? 'verify' : 'unverify';
-    if (
-      !window.confirm(
-        `Are you sure you want to ${action} ${verification.user.firstName} ${verification.user.lastName}?`
-      )
-    )
-      return;
+    setConfirm({ verification, newState });
+  };
+
+  const confirmVerifyToggle = async () => {
+    if (!confirm) return;
+    const { verification, newState } = confirm;
+    setConfirm(null);
     try {
       await api.patch(
         `/admin/verifications/${verification.user._id}/verify`,
@@ -72,12 +78,33 @@ export default function AdminVerifications() {
         )
       );
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update verification');
+      setApiError(err instanceof Error ? err.message : 'Failed to update verification');
     }
   };
 
   return (
     <div>
+      {confirm && (
+        <ConfirmModal
+          title={confirm.newState ? 'Verify Provider' : 'Unverify Provider'}
+          message={`${confirm.newState ? 'Verify' : 'Unverify'} ${confirm.verification.user.firstName} ${confirm.verification.user.lastName}? ${confirm.newState ? 'This will extend their verification by 30 days.' : 'This will remove their verified badge.'}`}
+          confirmLabel={confirm.newState ? 'Verify' : 'Unverify'}
+          variant={confirm.newState ? 'warning' : 'danger'}
+          onConfirm={confirmVerifyToggle}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+      {apiError && (
+        <ConfirmModal
+          title="Error"
+          message={apiError}
+          confirmLabel="OK"
+          cancelLabel={false}
+          variant="error"
+          onConfirm={() => setApiError('')}
+          onCancel={() => setApiError('')}
+        />
+      )}
       <AdminFilterBar>
         <FilterSelect
           value={statusFilter}

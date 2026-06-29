@@ -116,7 +116,7 @@ const services = [
     id: '01',
     title: 'Home Repairs & Maintenance',
     description:
-      'From fixing a leaky faucet to painting your walls, our taskers have the skills to tackle all your home improvement needs.',
+      'From fixing a leaky faucet to painting your walls, our plugs have the skills to tackle all your home improvement needs.',
   },
   {
     id: '02',
@@ -128,7 +128,7 @@ const services = [
     id: '03',
     title: 'Furniture Assembly',
     description:
-      'Skip the frustration of flat-pack furniture. Our taskers assemble beds, desks, shelves, and more quickly and correctly.',
+      'Skip the frustration of flat-pack furniture. Our plugs assemble beds, desks, shelves, and more quickly and correctly.',
   },
   {
     id: '04',
@@ -147,14 +147,14 @@ const howItWorksSteps = [
       'Browse our wide range of service categories and select the one that fits your needs. Whether it is home maintenance, cleaning, moving, or personal assistance, we have got you covered.',
   },
   {
-    title: 'Book a Service Provider',
+    title: 'Book a Plug',
     description:
       'Pick from our list of top-rated professionals, review their profiles and customer feedback, and schedule your service at a time that works best for you.',
   },
   {
     title: 'Get It Done',
     description:
-      'Relax while our trusted service provider completes the task to your satisfaction. Enjoy the convenience and quality of our seamless service experience.',
+      'Relax while our trusted plug completes the task to your satisfaction. Enjoy the convenience and quality of our seamless service experience.',
   },
 ];
 
@@ -164,7 +164,7 @@ const testimonials = [
     location: 'Lagos',
     image: 'https://randomuser.me/api/portraits/men/32.jpg',
     quote:
-      'I posted a plumbing job and had a verified tasker at my door within two hours. Fast, professional, and fairly priced.',
+      'I posted a plumbing job and had a verified plug at my door within two hours. Fast, professional, and fairly priced.',
     service: 'Plumbing',
   },
   {
@@ -310,7 +310,7 @@ const LandingPage = () => {
 
           <div className="relative max-w-2xl mx-auto text-center w-full">
             <h1 className="text-[1.625rem] leading-[1.15] sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white tracking-tight px-1">
-              Book Skilled Taskers, Anytime
+              Book Skilled Plugs, Anytime
             </h1>
             <p className="mt-3 sm:mt-4 text-white/60 text-sm sm:text-base max-w-md mx-auto leading-relaxed px-2">
               From home repairs to errands, get connected with reliable help in minutes
@@ -362,7 +362,7 @@ const LandingPage = () => {
             Dependable help for the tasks you keep putting off.
           </h2>
           <p className="mt-3 text-gray-500 text-sm sm:text-base leading-relaxed max-w-2xl">
-            From quick fixes to full-day projects, SurePlug helps you find skilled taskers you can
+            From quick fixes to full-day projects, SurePlug helps you find skilled plugs you can
             trust. Compare ratings, book in minutes, and get the work done without the runaround.
           </p>
 
@@ -465,7 +465,7 @@ const LandingPage = () => {
             </div>
 
             <Link to="/taskers" className="btn-link group mt-5">
-              Browse all taskers
+              Browse all plugs
               <HugeiconsIcon
                 icon={ArrowRight01Icon}
                 size={16}
@@ -488,7 +488,7 @@ const LandingPage = () => {
               </h2>
               <p className="mt-4 text-sm sm:text-[15px] text-gray-500 leading-relaxed">
                 Discover how simple it is to get professional help for your everyday needs. Follow
-                these three straightforward steps to connect with skilled service providers and
+                these three straightforward steps to connect with skilled plugs and
                 complete your tasks effortlessly.
               </p>
             </div>
@@ -544,19 +544,19 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Meet Top Taskers Section */}
+      {/* Meet Top Plugs Section */}
       <section className="bg-gray-50/80 border-t border-gray-100 overflow-hidden">
         <div className="section-wrap">
 
           {/* Header — left-aligned on mobile with inline CTA, centered on desktop */}
           <div className="flex items-end justify-between gap-4 sm:flex-col sm:items-center sm:text-center sm:max-w-2xl sm:mx-auto">
             <div>
-              <p className="section-label mb-2 sm:mb-3">Top Taskers</p>
+              <p className="section-label mb-2 sm:mb-3">Top Plugs</p>
               <h2 className="text-xl sm:text-2xl md:text-[1.75rem] lg:text-[2rem] font-semibold text-gray-900 tracking-tight leading-tight">
-                Meet Our Top-rated Taskers
+                Meet Our Top-rated Plugs
               </h2>
               <p className="hidden sm:block mt-3 text-[15px] text-gray-500 leading-relaxed">
-                Get to know the taskers who consistently deliver excellent results.
+                Get to know the plugs who consistently deliver excellent results.
               </p>
             </div>
             <Link
