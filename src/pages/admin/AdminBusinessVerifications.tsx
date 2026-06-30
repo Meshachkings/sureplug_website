@@ -8,7 +8,7 @@ import AdminFilterBar, { FilterSelect } from '../../components/admin/AdminFilter
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 interface BizVerificationsResponse {
-  verifications: AdminBusinessVerification[];
+  records: (Omit<AdminBusinessVerification, 'user'> & { userId: AdminBusinessVerification['user'] })[];
   pagination: ApiPagination;
 }
 
@@ -160,7 +160,11 @@ export default function AdminBusinessVerifications() {
         `/admin/business-verifications?${params.toString()}`,
         true
       );
-      setVerifications(res.data.verifications ?? []);
+      const normalized = (res.data.records ?? []).map(({ userId, ...rest }) => ({
+        ...rest,
+        user: userId,
+      }));
+      setVerifications(normalized);
       setPagination(res.data.pagination ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load business verifications');
