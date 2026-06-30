@@ -7,8 +7,22 @@ import Pagination from '../../components/admin/Pagination';
 import AdminFilterBar, { FilterSelect } from '../../components/admin/AdminFilterBar';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
+interface RawBizRecord {
+  _id: string;
+  businessName: string;
+  status: BusinessVerificationStatus;
+  paymentStatus?: string;
+  paidAt?: string;
+  adminNote?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  documents: AdminBusinessVerification['documents'];
+  createdAt: string;
+  userId: AdminBusinessVerification['user'];
+}
+
 interface BizVerificationsResponse {
-  records: (Omit<AdminBusinessVerification, 'user'> & { userId: AdminBusinessVerification['user'] })[];
+  records: RawBizRecord[];
   pagination: ApiPagination;
 }
 
@@ -160,9 +174,18 @@ export default function AdminBusinessVerifications() {
         `/admin/business-verifications?${params.toString()}`,
         true
       );
-      const normalized = (res.data.records ?? []).map(({ userId, ...rest }) => ({
-        ...rest,
-        user: userId,
+      const normalized: AdminBusinessVerification[] = (res.data.records ?? []).map((r) => ({
+        _id: r._id,
+        businessName: r.businessName,
+        status: r.status,
+        paymentStatus: r.paymentStatus,
+        paidAt: r.paidAt,
+        adminNote: r.adminNote ?? null,
+        reviewedBy: r.reviewedBy ?? null,
+        reviewedAt: r.reviewedAt ?? null,
+        documents: r.documents,
+        createdAt: r.createdAt,
+        user: r.userId,
       }));
       setVerifications(normalized);
       setPagination(res.data.pagination ?? null);
