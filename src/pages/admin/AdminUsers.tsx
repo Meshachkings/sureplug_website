@@ -291,7 +291,7 @@ export default function AdminUsers() {
             {users.map(user => (
               <div
                 key={user._id}
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                className="bg-white rounded-2xl border border-gray-100"
               >
                 {/* Tappable info area */}
                 <div
@@ -339,10 +339,10 @@ export default function AdminUsers() {
 
                 {/* Actions row */}
                 <div
-                  className="flex items-center gap-2 px-4 pb-3 pt-0"
+                  className="relative z-10 flex items-center gap-2 px-4 pb-3 pt-0"
                   onClick={e => e.stopPropagation()}
                 >
-                  <RoleSelect value={user.role} onChange={r => handleRoleChange(user._id, r)} size="sm" />
+                  <RoleSelect value={user.role} onChange={r => handleRoleChange(user._id, r)} size="sm" dropUp />
                   <div className="flex-1" />
                   <span className="text-[11px] text-gray-300">
                     {new Date(user.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
