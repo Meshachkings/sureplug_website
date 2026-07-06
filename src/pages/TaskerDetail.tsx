@@ -16,7 +16,7 @@ import { api, type ApiResponse, type ApiProviderProfile, type ApiReview } from '
 import { formatNaira } from '../lib/format';
 import StarFilled from '../components/StarFilled';
 import { useBookingModal } from '../context/BookingModalContext';
-import { VerifiedBadge } from '../components/VerifiedBadge';
+import { ProviderBadges } from '../components/VerifiedBadge';
 
 const AVATAR_PLACEHOLDER = (name: string) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=019B5F&color=fff&size=200`;
@@ -218,7 +218,11 @@ const TaskerDetail = () => {
                   <h1 className="text-xl sm:text-3xl md:text-4xl font-semibold text-white tracking-tight leading-tight">
                     {fullName}
                   </h1>
-                  {provider.providerVerified && <VerifiedBadge size={26} />}
+                  <ProviderBadges
+                    isVerified={Boolean(provider.isVerified || provider.businessVerified)}
+                    isPremium={provider.isPremium}
+                    size={26}
+                  />
                 </div>
                 {primaryService && (
                   <p className="mt-1 text-sm sm:text-lg text-white/75 truncate">{primaryService.title}</p>

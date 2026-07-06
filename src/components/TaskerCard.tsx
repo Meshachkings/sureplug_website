@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Location01Icon, Message01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { ProviderBadges } from './VerifiedBadge';
 import StarFilled from './StarFilled';
 import type { Tasker } from '../data/taskers';
 import { formatNaira } from '../lib/format';
@@ -50,7 +51,10 @@ const TaskerCard = ({ tasker, className = '', variant = 'carousel' }: TaskerCard
         {/* Content */}
         <div className="flex flex-col flex-1 p-3 sm:p-5">
           <h3 className="font-semibold text-[13px] sm:text-base text-gray-900 leading-snug line-clamp-2">
-            {tasker.role}
+            <span className="inline-flex items-center gap-1.5 flex-wrap">
+              {tasker.role}
+              <ProviderBadges isVerified={tasker.isVerified} isPremium={tasker.isPremium} size={14} />
+            </span>
           </h3>
 
           <div className="mt-1 flex items-center gap-1 text-[11px] sm:text-xs text-gray-400 flex-wrap">

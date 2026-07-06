@@ -17,7 +17,14 @@ const colorMap: Record<string, string> = {
   active: 'bg-green-100 text-green-700',
   blocked: 'bg-red-100 text-red-700',
   verified: 'bg-mint/10 text-mint-dark',
+  email_verified: 'bg-mint/10 text-mint-dark',
+  premium: 'bg-amber-100 text-amber-700',
   unverified: 'bg-gray-100 text-gray-500',
+  open: 'bg-yellow-100 text-yellow-700',
+  under_review: 'bg-indigo-100 text-indigo-700',
+  resolved_customer: 'bg-green-100 text-green-700',
+  resolved_provider: 'bg-blue-100 text-blue-700',
+  closed: 'bg-gray-100 text-gray-600',
 };
 
 export default function StatusBadge({ status }: Props) {

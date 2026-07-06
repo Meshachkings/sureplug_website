@@ -7,7 +7,8 @@ import {
   Bookmark01Icon,
   FavouriteIcon,
 } from '@hugeicons/core-free-icons';
-import { VerifiedBadge } from '../VerifiedBadge';
+import { ProviderBadges } from '../VerifiedBadge';
+import { isUserVerified } from '../../lib/disputes';
 import { api, type ApiResponse, type AdminUserDetail, type UserRole } from '../../lib/adminApi';
 import type { AdminUser } from '../../lib/adminApi';
 import StatusBadge from './StatusBadge';
@@ -97,7 +98,7 @@ export default function UserDetailModal({ user, onClose, onDelete, onRoleChange,
                 <p className="text-base font-semibold text-gray-900">
                   {user.firstName} {user.lastName}
                 </p>
-                {user.providerVerified && <VerifiedBadge size={17} />}
+                <ProviderBadges isVerified={isUserVerified(user)} isPremium={user.isPremium} size={17} />
               </div>
               <p className="text-sm text-gray-400 truncate">{user.email}</p>
               {user.suretag && (
@@ -115,8 +116,9 @@ export default function UserDetailModal({ user, onClose, onDelete, onRoleChange,
             }`}>
               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
             </span>
-            {user.verified && <StatusBadge status="verified" />}
-            {user.providerVerified && <StatusBadge status="provider_verified" />}
+            {user.verified && <StatusBadge status="email_verified" />}
+            {isUserVerified(user) && <StatusBadge status="verified" />}
+            {user.isPremium && <StatusBadge status="premium" />}
             {user.isBlocked && <StatusBadge status="blocked" />}
           </div>
 

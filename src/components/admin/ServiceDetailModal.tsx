@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, Delete02Icon } from '@hugeicons/core-free-icons';
-import { VerifiedBadge } from '../VerifiedBadge';
+import { ProviderBadges } from '../VerifiedBadge';
+import { isUserVerified } from '../../lib/disputes';
 import type { AdminService } from '../../lib/adminApi';
 import StatusBadge from './StatusBadge';
 import { formatNaira } from '../../lib/format';
@@ -100,7 +101,11 @@ export default function ServiceDetailModal({ service, onClose, onDelete }: Props
                   <p className="text-sm font-semibold text-gray-900 truncate">
                     {service.provider.firstName} {service.provider.lastName}
                   </p>
-                  {service.provider.providerVerified && <VerifiedBadge size={16} />}
+                  <ProviderBadges
+                    isVerified={isUserVerified(service.provider)}
+                    isPremium={service.provider.isPremium}
+                    size={16}
+                  />
                 </div>
                 <p className="text-xs text-gray-400 truncate">{service.provider.email}</p>
                 {service.provider.suretag && (

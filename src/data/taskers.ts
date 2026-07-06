@@ -10,6 +10,8 @@ export type Tasker = {
   price: number;
   location: string;
   featured?: boolean;
+  isPremium?: boolean;
+  isVerified?: boolean;
 };
 
 export const taskerCategories = [

@@ -50,6 +50,8 @@ function mapServiceToTasker(service: ApiService): Tasker {
     price: service.price ?? 0,
     location: service.state || 'Nigeria',
     featured: (service.averageRating ?? 0) >= 4.5,
+    isPremium: service.provider.isPremium,
+    isVerified: Boolean(service.provider.isVerified || service.provider.businessVerified),
   };
 }
 

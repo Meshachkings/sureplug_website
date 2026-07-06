@@ -56,7 +56,7 @@ export default function AdminVerifications() {
   }, [fetchVerifications]);
 
   const handleVerifyToggle = (verification: AdminVerification) => {
-    const newState = !verification.user.providerVerified;
+    const newState = !verification.user.isPremium;
     setConfirm({ verification, newState });
   };
 
@@ -73,7 +73,7 @@ export default function AdminVerifications() {
       setVerifications((prev) =>
         prev.map((v) =>
           v._id === verification._id
-            ? { ...v, user: { ...v.user, providerVerified: newState } }
+            ? { ...v, user: { ...v.user, isPremium: newState } }
             : v
         )
       );
@@ -86,9 +86,9 @@ export default function AdminVerifications() {
     <div>
       {confirm && (
         <ConfirmModal
-          title={confirm.newState ? 'Verify Provider' : 'Unverify Provider'}
-          message={`${confirm.newState ? 'Verify' : 'Unverify'} ${confirm.verification.user.firstName} ${confirm.verification.user.lastName}? ${confirm.newState ? 'This will extend their verification by 30 days.' : 'This will remove their verified badge.'}`}
-          confirmLabel={confirm.newState ? 'Verify' : 'Unverify'}
+          title={confirm.newState ? 'Grant Premium' : 'Revoke Premium'}
+          message={`${confirm.newState ? 'Grant' : 'Revoke'} Premium for ${confirm.verification.user.firstName} ${confirm.verification.user.lastName}? ${confirm.newState ? 'This will extend their premium subscription by 30 days.' : 'This will remove their premium listing priority.'}`}
+          confirmLabel={confirm.newState ? 'Grant Premium' : 'Revoke Premium'}
           variant={confirm.newState ? 'warning' : 'danger'}
           onConfirm={confirmVerifyToggle}
           onCancel={() => setConfirm(null)}
@@ -154,12 +154,12 @@ export default function AdminVerifications() {
                 <button
                   onClick={() => handleVerifyToggle(v)}
                   className={`w-full py-2.5 text-sm rounded-xl font-medium transition-colors min-h-[44px] ${
-                    v.user.providerVerified
+                    v.user.isPremium
                       ? 'bg-red-50 text-red-700 hover:bg-red-100'
                       : 'bg-green-50 text-green-700 hover:bg-green-100'
                   }`}
                 >
-                  {v.user.providerVerified ? 'Unverify Provider' : 'Verify Provider'}
+                  {v.user.isPremium ? 'Revoke Premium' : 'Grant Premium'}
                 </button>
               </div>
             ))}
@@ -204,12 +204,12 @@ export default function AdminVerifications() {
                         <button
                           onClick={() => handleVerifyToggle(v)}
                           className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
-                            v.user.providerVerified
+                            v.user.isPremium
                               ? 'bg-red-50 text-red-700 hover:bg-red-100'
                               : 'bg-green-50 text-green-700 hover:bg-green-100'
                           }`}
                         >
-                          {v.user.providerVerified ? 'Unverify' : 'Verify'}
+                          {v.user.isPremium ? 'Revoke' : 'Grant'}
                         </button>
                       </td>
                     </tr>

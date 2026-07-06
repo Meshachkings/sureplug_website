@@ -5,7 +5,9 @@ import {
   Home01Icon,
   UserIcon,
   Package01Icon,
+  Bookmark01Icon,
   Certificate01Icon,
+  LegalDocument01Icon,
   Logout01Icon,
   Menu01Icon,
   Cancel01Icon,
@@ -29,7 +31,9 @@ const navItems: NavItem[] = [
   { label: 'Overview',     to: '/dashboard',                icon: Home01Icon,       end: true },
   { label: 'Profile',      to: '/dashboard/profile',        icon: UserIcon },
   { label: 'Services',     to: '/dashboard/services',       icon: Package01Icon },
+  { label: 'Bookings',     to: '/dashboard/bookings',       icon: Bookmark01Icon },
   { label: 'Verification', to: '/dashboard/verification',   icon: Certificate01Icon },
+  { label: 'Disputes',     to: '/dashboard/disputes',       icon: LegalDocument01Icon },
 ];
 
 export default function DashboardLayout() {

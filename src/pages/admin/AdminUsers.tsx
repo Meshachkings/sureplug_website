@@ -3,7 +3,8 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Delete02Icon, UserIcon, Search01Icon, FilterIcon } from '@hugeicons/core-free-icons';
 import { api, type ApiResponse, type ApiPagination, type AdminUserStats } from '../../lib/adminApi';
 import type { AdminUser, UserRole } from '../../lib/adminApi';
-import { VerifiedBadge, BusinessBadge } from '../../components/VerifiedBadge';
+import { ProviderBadges } from '../../components/VerifiedBadge';
+import { isUserVerified } from '../../lib/disputes';
 import Pagination from '../../components/admin/Pagination';
 import UserDetailModal from '../../components/admin/UserDetailModal';
 import RoleSelect from '../../components/admin/RoleSelect';
@@ -303,8 +304,11 @@ export default function AdminUsers() {
                       <p className="text-sm font-semibold text-gray-900 truncate">
                         {user.firstName} {user.lastName}
                       </p>
-                      {user.providerVerified && <VerifiedBadge size={13} />}
-                      {user.businessVerified && <BusinessBadge size={13} />}
+                      <ProviderBadges
+                        isVerified={isUserVerified(user)}
+                        isPremium={user.isPremium}
+                        size={13}
+                      />
                       {user.isBlocked && (
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-600 uppercase tracking-wide shrink-0">
                           Blocked
@@ -424,9 +428,12 @@ export default function AdminUsers() {
                           ) : (
                             <span title="Email not verified" className="w-2 h-2 rounded-full bg-gray-200 shrink-0" />
                           )}
-                          {user.providerVerified && <VerifiedBadge size={16} />}
-                          {user.businessVerified && <BusinessBadge size={16} />}
-                          {!user.providerVerified && !user.businessVerified && (
+                          <ProviderBadges
+                            isVerified={isUserVerified(user)}
+                            isPremium={user.isPremium}
+                            size={16}
+                          />
+                          {!isUserVerified(user) && !user.isPremium && (
                             <span className="text-[11px] text-gray-300">—</span>
                           )}
                         </div>

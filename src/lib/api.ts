@@ -13,9 +13,10 @@ export interface User {
   role?: string;
   accountType?: 'customer' | 'handyman' | 'business';
   verified?: boolean;
-  providerVerified?: boolean;
-  providerVerificationExpiresAt?: string | null;
+  isVerified?: boolean;
   businessVerified?: boolean;
+  isPremium?: boolean;
+  premiumExpiresAt?: string | null;
   autoRenewEnabled?: boolean;
   isBlocked?: boolean;
   permissions?: string[];
@@ -38,7 +39,10 @@ export interface ApiService {
     lastName: string;
     avatar?: { url: string };
     suretag: string;
-    providerVerified?: boolean;
+    isPremium?: boolean;
+    premiumExpiresAt?: string | null;
+    isVerified?: boolean;
+    businessVerified?: boolean;
   };
 }
 

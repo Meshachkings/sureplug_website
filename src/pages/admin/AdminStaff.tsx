@@ -17,6 +17,7 @@ const PERMISSION_LABELS: Record<StaffPermission, string> = {
   manage_users: 'Manage Users',
   manage_services: 'Manage Services',
   manage_bookings: 'Manage Bookings',
+  manage_disputes: 'Manage Disputes',
   manage_reviews: 'Manage Reviews',
   manage_verifications: 'Manage Verifications',
   manage_business_verifications: 'Business Verifications',

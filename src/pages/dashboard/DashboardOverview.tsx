@@ -12,7 +12,8 @@ import {
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '../../context/AuthContext';
 import { api, type ApiResponse, type ApiProviderProfile } from '../../lib/api';
-import { VerifiedPill, BusinessPill } from '../../components/VerifiedBadge';
+import { VerifiedPill, PremiumPill } from '../../components/VerifiedBadge';
+import { isUserVerified } from '../../lib/disputes';
 
 const AVATAR_PLACEHOLDER = (name: string) =>
   `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=019B5F&color=fff&size=128`;
@@ -64,8 +65,8 @@ export default function DashboardOverview() {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h1 className="text-lg font-semibold text-gray-900">{displayName}</h1>
-            {user?.providerVerified && <VerifiedPill />}
-            {user?.businessVerified && <BusinessPill />}
+            {isUserVerified(user ?? {}) && <VerifiedPill />}
+            {user?.isPremium && <PremiumPill />}
           </div>
           <p className="text-sm text-gray-500">{user?.email}</p>
           <div className="flex flex-wrap gap-2 mt-2">

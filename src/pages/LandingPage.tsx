@@ -18,6 +18,7 @@ import HeroHeader from '../components/HeroHeader';
 import { api, type ApiResponse, type ApiService } from '../lib/api';
 import { formatNaira } from '../lib/format';
 import StarFilled from '../components/StarFilled';
+import { ProviderBadges } from '../components/VerifiedBadge';
 import type { Tasker } from '../data/taskers';
 
 const AVATAR_PLACEHOLDER = (name: string) =>
@@ -55,6 +56,8 @@ function mapServiceToTasker(service: ApiService): Tasker {
     price: service.price ?? 0,
     location: service.state ?? '',
     featured: (service.averageRating ?? 0) >= 4.5,
+    isPremium: service.provider.isPremium,
+    isVerified: Boolean(service.provider.isVerified || service.provider.businessVerified),
   };
 }
 
@@ -606,6 +609,11 @@ const LandingPage = () => {
                   <h3 className="text-sm sm:text-[15px] font-bold text-white leading-snug tracking-tight line-clamp-1">
                     {tasker.name}
                   </h3>
+                  {(tasker.isVerified || tasker.isPremium) && (
+                    <div className="mt-1.5 flex items-center gap-1">
+                      <ProviderBadges isVerified={tasker.isVerified} isPremium={tasker.isPremium} size={12} />
+                    </div>
+                  )}
                   <p className="mt-0.5 text-[11px] sm:text-xs text-white/50 leading-snug line-clamp-1">
                     {tasker.role}
                   </p>

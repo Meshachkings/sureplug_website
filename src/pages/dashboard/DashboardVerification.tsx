@@ -18,10 +18,10 @@ import { formatNaira } from '../../lib/format';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-interface ProviderVerifyStatus {
+interface PremiumStatus {
   isServiceProvider: boolean;
-  providerVerified: boolean;
-  providerVerificationExpiresAt: string | null;
+  isPremium: boolean;
+  premiumExpiresAt: string | null;
   daysUntilExpiry: number | null;
   needsRenewal: boolean;
   canRenew: boolean;
@@ -29,6 +29,7 @@ interface ProviderVerifyStatus {
   monthlyAmount: number;
   autoRenewEnabled: boolean;
   hasSavedPaymentMethod: boolean;
+  isVerified: boolean;
 }
 
 type BizStatus = 'awaiting_payment' | 'awaiting_documents' | 'pending_review' | 'approved' | 'rejected';
@@ -150,7 +151,7 @@ export default function DashboardVerification() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Provider verification
-  const [pv, setPv] = useState<ProviderVerifyStatus | null>(null);
+  const [pv, setPv] = useState<PremiumStatus | null>(null);
   const [pvLoading, setPvLoading] = useState(true);
   const [pvError, setPvError] = useState('');
   const [pvInitLoading, setPvInitLoading] = useState(false);
@@ -181,7 +182,7 @@ export default function DashboardVerification() {
   const fetchPv = useCallback(async () => {
     setPvError('');
     try {
-      const res = await api.get<ApiResponse<ProviderVerifyStatus>>('/verification/status', true);
+      const res = await api.get<ApiResponse<PremiumStatus>>('/verification/status', true);
       setPv(res.data);
     } catch (err) {
       setPvError(err instanceof Error ? err.message : 'Failed to load status');
@@ -245,19 +246,19 @@ export default function DashboardVerification() {
           .finally(() => { fetchPv(); fetchBiz(); });
       } else {
         setPvLoading(true);
-        api.get<ApiResponse<{ providerVerified: boolean; providerVerificationExpiresAt: string; autoRenewEnabled: boolean }>>(
+        api.get<ApiResponse<{ isPremium: boolean; premiumExpiresAt: string; autoRenewEnabled: boolean }>>(
           `/verification/confirm/${reference}`, true
         )
           .then((res) => {
             updateUser({
-              providerVerified: res.data.providerVerified,
-              providerVerificationExpiresAt: res.data.providerVerificationExpiresAt,
+              isPremium: res.data.isPremium,
+              premiumExpiresAt: res.data.premiumExpiresAt,
               autoRenewEnabled: res.data.autoRenewEnabled,
             });
             setPvConfirm({
               msg: res.data.autoRenewEnabled
-                ? 'Verified! Auto-renewal is active. Your badge will renew automatically each month.'
-                : 'Verified! Your badge is now active.',
+                ? 'Premium activated! Auto-renewal is on — your listing priority renews each month.'
+                : 'Premium activated! Your services now appear first in search results.',
               isError: false,
             });
           })
@@ -364,7 +365,7 @@ export default function DashboardVerification() {
     if (pvError) return <div className="bg-white rounded-2xl border border-red-100 p-5 text-sm text-red-500">{pvError}</div>;
     if (!pv?.isServiceProvider) return null;
 
-    const { requiresPayment, providerVerified, canRenew, needsRenewal, daysUntilExpiry, providerVerificationExpiresAt, monthlyAmount, autoRenewEnabled, hasSavedPaymentMethod } = pv;
+    const { requiresPayment, isPremium, canRenew, needsRenewal, daysUntilExpiry, premiumExpiresAt, monthlyAmount, autoRenewEnabled, hasSavedPaymentMethod } = pv;
 
     if (requiresPayment) {
       return (
@@ -377,7 +378,7 @@ export default function DashboardVerification() {
                 <HugeiconsIcon icon={BadgeCheckIcon} size={26} color="#4ade80" strokeWidth={1.75} />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-[#4ade80]/70 uppercase tracking-widest mb-1.5">Verified Plug Badge</p>
+                <p className="text-[10px] font-bold text-amber-300/80 uppercase tracking-widest mb-1.5">Premium subscription</p>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-[28px] font-bold text-white leading-none tracking-tight">{formatNaira(monthlyAmount)}</span>
                   <span className="text-sm text-white/35 font-medium">/month</span>
@@ -390,13 +391,13 @@ export default function DashboardVerification() {
           <div className="bg-white px-6 py-5">
             {pvConfirm && <Notice msg={pvConfirm.msg} isError={pvConfirm.isError} />}
             <p className="text-sm text-gray-500 leading-relaxed mb-4">
-              Stand out from other plugs with a verified badge on your profile and service listings.
+              Get priority placement in search and browse results with a monthly Premium subscription.
             </p>
             <div className="mb-5">
               {[
-                'Verified checkmark displayed on your profile',
-                'Priority placement in search results',
-                'Higher trust and conversion from clients',
+                'Appear first in service search results',
+                'Premium indicator on your profile and listings',
+                'Higher visibility to customers browsing taskers',
               ].map((item, i, arr) => (
                 <div key={item} className={`flex items-center gap-3 py-2.5 ${i < arr.length - 1 ? 'border-b border-gray-50' : ''}`}>
                   <div className="w-5 h-5 rounded-full bg-[#019B5F]/10 flex items-center justify-center shrink-0">
@@ -408,7 +409,7 @@ export default function DashboardVerification() {
             </div>
             {pvInitError && <p className="text-sm text-red-500 mb-3">{pvInitError}</p>}
             <button onClick={pvInit} disabled={pvInitLoading} className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#019B5F] text-white text-sm font-semibold hover:bg-[#017a4c] transition-colors disabled:opacity-60">
-              {pvInitLoading ? 'Redirecting…' : `Get verified for ${formatNaira(monthlyAmount)}/mo`}
+              {pvInitLoading ? 'Redirecting…' : `Subscribe for ${formatNaira(monthlyAmount)}/mo`}
               {!pvInitLoading && <HugeiconsIcon icon={ArrowRight01Icon} size={14} color="white" strokeWidth={2.5} />}
             </button>
             <p className="text-xs text-gray-400 text-center mt-2.5">Pay with a reusable card to enable automatic monthly renewal</p>
@@ -428,19 +429,19 @@ export default function DashboardVerification() {
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[15px] font-semibold text-white">Verified Plug</span>
+                  <span className="text-[15px] font-semibold text-white">Premium</span>
                   <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500 text-white uppercase tracking-wider">Expired</span>
                 </div>
-                <p className="text-xs text-white/40">Your badge is no longer active</p>
+                <p className="text-xs text-white/40">Your premium listing boost is no longer active</p>
               </div>
             </div>
           </div>
           <div className="bg-white px-6 py-5">
             {pvConfirm && <Notice msg={pvConfirm.msg} isError={pvConfirm.isError} />}
-            <p className="text-sm text-gray-500 mb-4">Your Verified Plug badge has expired. Renew to restore it on your profile and service listings.</p>
+            <p className="text-sm text-gray-500 mb-4">Your Premium subscription has expired. Renew to restore priority placement in search results.</p>
             {pvRenewError && <p className="text-sm text-red-500 mb-3">{pvRenewError}</p>}
             <button onClick={pvRenew} disabled={pvRenewLoading} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#019B5F] text-white text-sm font-semibold hover:bg-[#017a4c] transition-colors disabled:opacity-60">
-              {pvRenewLoading ? 'Redirecting…' : `Renew badge for ${formatNaira(monthlyAmount)}/mo`}
+              {pvRenewLoading ? 'Redirecting…' : `Renew Premium for ${formatNaira(monthlyAmount)}/mo`}
               {!pvRenewLoading && <HugeiconsIcon icon={ArrowRight01Icon} size={14} color="white" strokeWidth={2.5} />}
             </button>
           </div>
@@ -448,7 +449,7 @@ export default function DashboardVerification() {
       );
     }
 
-    if (providerVerified && canRenew) {
+    if (isPremium && canRenew) {
       return (
         <div className="rounded-2xl overflow-hidden border border-amber-900/20">
           <div className="relative bg-gradient-to-br from-[#1a1000] to-[#120c00] px-6 py-6 overflow-hidden">
@@ -460,12 +461,12 @@ export default function DashboardVerification() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[15px] font-semibold text-white">Verified Plug</span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500 text-white uppercase tracking-wider">Expiring</span>
-                  </div>
-                  {providerVerificationExpiresAt && (
+                  <span className="text-[15px] font-semibold text-white">Premium</span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500 text-white uppercase tracking-wider">Expiring</span>
+                </div>
+                  {premiumExpiresAt && (
                     <p className="text-xs text-white/40">
-                      {new Date(providerVerificationExpiresAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(premiumExpiresAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
                   )}
                 </div>
@@ -480,7 +481,7 @@ export default function DashboardVerification() {
           </div>
           <div className="bg-white px-6 py-5">
             {pvConfirm && <Notice msg={pvConfirm.msg} isError={pvConfirm.isError} />}
-            <p className="text-sm text-gray-500 mb-4">Your badge is expiring soon. Renew now to keep it active without any interruption.</p>
+            <p className="text-sm text-gray-500 mb-4">Your Premium subscription is expiring soon. Renew now to keep priority placement without interruption.</p>
             {pvRenewError && <p className="text-sm text-red-500 mb-3">{pvRenewError}</p>}
             <button onClick={pvRenew} disabled={pvRenewLoading} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#019B5F] text-white text-sm font-semibold hover:bg-[#017a4c] transition-colors disabled:opacity-60">
               {pvRenewLoading ? 'Redirecting…' : `Renew now for ${formatNaira(monthlyAmount)}/mo`}
@@ -504,12 +505,12 @@ export default function DashboardVerification() {
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[15px] font-semibold text-white">Verified Plug</span>
+                  <span className="text-[15px] font-semibold text-white">Premium</span>
                   <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#019B5F] text-white uppercase tracking-wider">Active</span>
                 </div>
-                {providerVerificationExpiresAt && (
+                {premiumExpiresAt && (
                   <p className="text-xs text-white/40">
-                    Valid until {new Date(providerVerificationExpiresAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    Valid until {new Date(premiumExpiresAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}
                   </p>
                 )}
               </div>
@@ -617,7 +618,7 @@ export default function DashboardVerification() {
       );
     };
 
-    if (user?.businessVerified || biz?.status === 'approved') {
+    if (user?.businessVerified || user?.isVerified || biz?.status === 'approved') {
       return (
         <div className="rounded-2xl overflow-hidden border border-amber-900/20 shadow-sm shadow-amber-900/5">
           <div className="relative bg-gradient-to-br from-[#1a1000] to-[#120c00] px-6 py-6 overflow-hidden">
@@ -628,8 +629,8 @@ export default function DashboardVerification() {
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[15px] font-semibold text-white">Business Verified</span>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500 text-white uppercase tracking-wider">Approved</span>
+                  <span className="text-[15px] font-semibold text-white">Verified badge</span>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#019B5F] text-white uppercase tracking-wider">Approved</span>
                 </div>
                 {biz?.businessName
                   ? <p className="text-xs text-white/40">{biz.businessName}</p>
@@ -640,7 +641,7 @@ export default function DashboardVerification() {
           </div>
           <div className="bg-white px-6 py-5">
             <p className="text-sm text-gray-500 leading-relaxed">
-              Your business is verified. The Business badge is displayed on your profile and all service listings.
+              Your verified badge is active. It is displayed on your profile and service listings to build customer trust.
             </p>
           </div>
         </div>
@@ -811,7 +812,7 @@ export default function DashboardVerification() {
 
       {pvContent && (
         <section>
-          <h2 className="text-[15px] font-semibold text-gray-900 mb-3">Verified Plug Badge</h2>
+          <h2 className="text-[15px] font-semibold text-gray-900 mb-3">Premium subscription</h2>
           {pvContent}
         </section>
       )}

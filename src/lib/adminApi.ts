@@ -39,9 +39,10 @@ export interface AdminUser {
   suretag?: string;
   bio?: string;
   verified: boolean;
-  providerVerified: boolean;
-  providerVerificationExpiresAt?: string | null;
+  isVerified?: boolean;
   businessVerified?: boolean;
+  isPremium?: boolean;
+  premiumExpiresAt?: string | null;
   autoRenewEnabled?: boolean;
   isBlocked: boolean;
   avatar: { url: string; size?: number; type?: string } | null;
@@ -95,7 +96,10 @@ export interface AdminService {
     lastName: string;
     email: string;
     suretag: string;
-    providerVerified: boolean;
+    providerVerified?: boolean;
+    isPremium?: boolean;
+    isVerified?: boolean;
+    businessVerified?: boolean;
     avatar?: { url: string } | null;
   };
   category: {
@@ -165,7 +169,10 @@ export interface AdminVerification {
     email: string;
     suretag?: string;
     accountType?: string;
-    providerVerified: boolean;
+    providerVerified?: boolean;
+    isPremium?: boolean;
+    isVerified?: boolean;
+    businessVerified?: boolean;
     providerVerificationExpiresAt?: string | null;
   };
 }
@@ -212,6 +219,7 @@ export const STAFF_PERMISSIONS = [
   'manage_users',
   'manage_services',
   'manage_bookings',
+  'manage_disputes',
   'manage_reviews',
   'manage_verifications',
   'manage_business_verifications',

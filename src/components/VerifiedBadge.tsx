@@ -92,11 +92,67 @@ export function BusinessBadge({ size = 18, className }: BadgeProps) {
   );
 }
 
-export function BusinessPill({ label = 'Business', size = 'sm' }: { label?: string; size?: 'sm' | 'md' }) {
+export function BusinessPill({ label = 'Verified', size = 'sm' }: { label?: string; size?: 'sm' | 'md' }) {
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold bg-[#019B5F]/10 text-[#019B5F] ${size === 'sm' ? 'text-[11px]' : 'text-xs'}`}>
+      <VerifiedBadge size={size === 'sm' ? 12 : 14} />
+      {label}
+    </span>
+  );
+}
+
+export function PremiumBadge({ size = 18, className }: BadgeProps) {
+  const uid = useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-label="Premium provider"
+      className={className}
+      style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0 }}
+    >
+      <defs>
+        <linearGradient id={`pbg${uid}`} x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#fcd34d" />
+          <stop offset="1" stopColor="#d97706" />
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="9.5" fill={`url(#pbg${uid})`} />
+      <path
+        d="M12 6.5L13.6 10.2H17.5L14.4 12.6L15.6 16.4L12 14.1L8.4 16.4L9.6 12.6L6.5 10.2H10.4L12 6.5Z"
+        fill="white"
+      />
+    </svg>
+  );
+}
+
+export function PremiumPill({ label = 'Premium', size = 'sm' }: { label?: string; size?: 'sm' | 'md' }) {
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold bg-amber-50 text-amber-700 ${size === 'sm' ? 'text-[11px]' : 'text-xs'}`}>
-      <BusinessBadge size={size === 'sm' ? 12 : 14} />
+      <PremiumBadge size={size === 'sm' ? 12 : 14} />
       {label}
+    </span>
+  );
+}
+
+export function ProviderBadges({
+  isVerified,
+  isPremium,
+  size = 18,
+  className,
+}: {
+  isVerified?: boolean;
+  isPremium?: boolean;
+  size?: number;
+  className?: string;
+}) {
+  if (!isVerified && !isPremium) return null;
+  return (
+    <span className={`inline-flex items-center gap-1 ${className ?? ''}`}>
+      {isVerified && <VerifiedBadge size={size} />}
+      {isPremium && <PremiumBadge size={size} />}
     </span>
   );
 }
