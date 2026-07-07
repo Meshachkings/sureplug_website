@@ -28,7 +28,6 @@ const ROLE_ACTIVE: Record<UserRole, string> = {
 type MenuPosition = {
   left: number;
   top?: number;
-  bottom?: number;
   minWidth: number;
 };
 
@@ -54,7 +53,8 @@ export default function RoleSelect({ value, onChange, size = 'md', dropUp = fals
       const rect = buttonRef.current.getBoundingClientRect();
       setMenuPosition({
         left: rect.left,
-        bottom: window.innerHeight - rect.top + 6,
+        // anchor to the top edge of the button, then translateY(-100%) for "drop up"
+        top: rect.top - 6,
         minWidth: Math.max(rect.width, 120),
       });
     };
@@ -108,11 +108,13 @@ export default function RoleSelect({ value, onChange, size = 'md', dropUp = fals
       style={dropUp && menuPosition ? {
         position: 'fixed',
         left: menuPosition.left,
-        bottom: menuPosition.bottom,
+        top: menuPosition.top,
         minWidth: menuPosition.minWidth,
+        transform: 'translateY(-100%)',
+        zIndex: 9999,
       } : undefined}
       className={`bg-white rounded-xl shadow-lg border border-gray-100 py-1 ${
-        dropUp ? 'z-[200]' : 'absolute left-0 top-full mt-1.5 z-50 min-w-[120px]'
+        dropUp ? '' : 'absolute left-0 top-full mt-1.5 z-50 min-w-[120px]'
       }`}
     >
       {menuItems}
