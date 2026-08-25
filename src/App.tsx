@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { BookingModalProvider } from './context/BookingModalContext'
 import LandingPage from './pages/LandingPage'
+import Waitlist from './pages/Waitlist'
+import { WAITLIST_MODE } from './lib/flags'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Taskers from './pages/Taskers'
@@ -46,7 +48,8 @@ function App() {
       <div className="app">
         <main>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={WAITLIST_MODE ? <Waitlist /> : <LandingPage />} />
+            <Route path="/waitlist" element={<Waitlist />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/taskers" element={<Taskers />} />
