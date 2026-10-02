@@ -6,6 +6,7 @@ import type { AdminStaff, StaffPermission } from '../../lib/adminApi';
 import { STAFF_PERMISSIONS } from '../../lib/adminApi';
 import Pagination from '../../components/admin/Pagination';
 import ConfirmModal from '../../components/admin/ConfirmModal';
+import PasswordInput from '../../components/PasswordInput';
 
 interface StaffResponse {
   staff: AdminStaff[];
@@ -171,14 +172,13 @@ function CreateStaffPanel({ onCreate }: { onCreate: (staff: AdminStaff) => void 
           </div>
           <div className="sm:col-span-2">
             <label className="block text-xs font-semibold text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
-              className="auth-input"
+              autoComplete="new-password"
             />
           </div>
         </div>
@@ -466,55 +466,54 @@ export default function AdminStaffPage() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">Staff</th>
-                    <th className="px-4 py-3 text-left">Permissions</th>
-                    <th className="px-4 py-3 text-left">Joined</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                  <tr>
+                    <th>Staff</th>
+                    <th>Permissions</th>
+                    <th>Joined</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {staff.map((s) => (
-                    <tr key={s._id} className="hover:bg-gray-50/50 transition-colors align-top">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">
+                    <tr key={s._id}>
+                      <td>
+                        <p className="font-semibold text-gray-900">
                           {s.firstName} {s.lastName}
                         </p>
-                        <p className="text-xs text-gray-400">{s.email}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{s.email}</p>
                         {s.phone && <p className="text-xs text-gray-400">{s.phone}</p>}
                       </td>
-                      <td className="px-4 py-3 max-w-xs">
-                        <div className="flex flex-wrap gap-1">
+                      <td className="max-w-xs">
+                        <div className="flex flex-wrap gap-1.5">
                           {s.permissions.map((p) => (
                             <span
                               key={p}
-                              className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#019B5F]/8 text-[#019B5F]"
+                              className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-mint/10 text-mint"
                             >
                               {PERMISSION_LABELS[p]}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
+                      <td className="text-xs text-gray-500 whitespace-nowrap">
                         {new Date(s.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="text-right">
+                        <div className="inline-flex items-center gap-2">
                           <button
                             onClick={() => setEditTarget(s)}
-                            className="px-3 py-1 text-xs rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors flex items-center gap-1.5"
+                            className="admin-btn-secondary"
                           >
-                            <HugeiconsIcon icon={PencilEdit01Icon} size={11} strokeWidth={2} color="currentColor" />
+                            <HugeiconsIcon icon={PencilEdit01Icon} size={13} strokeWidth={2} color="currentColor" />
                             Edit
                           </button>
                           <button
                             onClick={() => setDeleteTarget(s)}
-                            className="px-3 py-1 text-xs rounded-lg font-medium bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                            className="admin-btn-danger"
                           >
                             Delete
                           </button>

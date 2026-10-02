@@ -19,6 +19,12 @@ const STATUS_OPTIONS: Array<{ label: string; value: string }> = [
   { label: 'Failed', value: 'failed' },
 ];
 
+function userLabel(user?: AdminVerification['user']) {
+  if (!user) return 'Unknown user';
+  const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+  return name || user.email || 'Unknown user';
+}
+
 export default function AdminVerifications() {
   const [verifications, setVerifications] = useState<AdminVerification[]>([]);
   const [pagination, setPagination] = useState<ApiPagination | null>(null);
@@ -56,23 +62,28 @@ export default function AdminVerifications() {
   }, [fetchVerifications]);
 
   const handleVerifyToggle = (verification: AdminVerification) => {
+    if (!verification.user?._id) {
+      setApiError('This verification has no linked user account.');
+      return;
+    }
     const newState = !verification.user.isPremium;
     setConfirm({ verification, newState });
   };
 
   const confirmVerifyToggle = async () => {
-    if (!confirm) return;
+    const userId = confirm?.verification.user?._id;
+    if (!confirm || !userId) return;
     const { verification, newState } = confirm;
     setConfirm(null);
     try {
       await api.patch(
-        `/admin/verifications/${verification.user._id}/verify`,
+        `/admin/verifications/${userId}/verify`,
         { verified: newState },
         true
       );
       setVerifications((prev) =>
         prev.map((v) =>
-          v._id === verification._id
+          v._id === verification._id && v.user
             ? { ...v, user: { ...v.user, isPremium: newState } }
             : v
         )
@@ -84,10 +95,10 @@ export default function AdminVerifications() {
 
   return (
     <div>
-      {confirm && (
+      {confirm && confirm.verification.user && (
         <ConfirmModal
           title={confirm.newState ? 'Grant Premium' : 'Revoke Premium'}
-          message={`${confirm.newState ? 'Grant' : 'Revoke'} Premium for ${confirm.verification.user.firstName} ${confirm.verification.user.lastName}? ${confirm.newState ? 'This will extend their premium subscription by 30 days.' : 'This will remove their premium listing priority.'}`}
+          message={`${confirm.newState ? 'Grant' : 'Revoke'} Premium for ${userLabel(confirm.verification.user)}? ${confirm.newState ? 'This will extend their premium subscription by 30 days.' : 'This will remove their premium listing priority.'}`}
           confirmLabel={confirm.newState ? 'Grant Premium' : 'Revoke Premium'}
           variant={confirm.newState ? 'warning' : 'danger'}
           onConfirm={confirmVerifyToggle}
@@ -129,15 +140,12 @@ export default function AdminVerifications() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center text-gray-400">No verifications found.</div>
       ) : (
         <>
-          {/* Mobile cards */}
           <div className="md:hidden space-y-3">
             {verifications.map((v) => (
               <div key={v._id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
                 <div className="mb-2">
-                  <p className="font-semibold text-gray-900">
-                    {v.user.firstName} {v.user.lastName}
-                  </p>
-                  <p className="text-xs text-gray-400">{v.user.email}</p>
+                  <p className="font-semibold text-gray-900">{userLabel(v.user)}</p>
+                  {v.user?.email && <p className="text-xs text-gray-400">{v.user.email}</p>}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mb-3">
                   <StatusBadge status={v.status} />
@@ -151,66 +159,65 @@ export default function AdminVerifications() {
                 <p className="text-xs text-gray-500 font-mono truncate mb-3">
                   Ref: {v.reference}
                 </p>
-                <button
-                  onClick={() => handleVerifyToggle(v)}
-                  className={`w-full py-2.5 text-sm rounded-xl font-medium transition-colors min-h-[44px] ${
-                    v.user.isPremium
-                      ? 'bg-red-50 text-red-700 hover:bg-red-100'
-                      : 'bg-green-50 text-green-700 hover:bg-green-100'
-                  }`}
-                >
-                  {v.user.isPremium ? 'Revoke Premium' : 'Grant Premium'}
-                </button>
+                {v.user?._id ? (
+                  <button
+                    onClick={() => handleVerifyToggle(v)}
+                    className={`w-full min-h-[44px] ${
+                      v.user.isPremium ? 'admin-btn-danger' : 'admin-btn-primary'
+                    }`}
+                  >
+                    {v.user.isPremium ? 'Revoke Premium' : 'Grant Premium'}
+                  </button>
+                ) : (
+                  <p className="text-xs text-gray-400 text-center py-2">No linked user</p>
+                )}
               </div>
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">User</th>
-                    <th className="px-4 py-3 text-left">Reference</th>
-                    <th className="px-4 py-3 text-left">Amount</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Paid At</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                  <tr>
+                    <th>User</th>
+                    <th>Reference</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Paid At</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {verifications.map((v) => (
-                    <tr key={v._id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">
-                          {v.user.firstName} {v.user.lastName}
-                        </p>
-                        <p className="text-xs text-gray-400">{v.user.email}</p>
+                    <tr key={v._id}>
+                      <td>
+                        <p className="font-semibold text-gray-900">{userLabel(v.user)}</p>
+                        {v.user?.email && <p className="text-xs text-gray-400 mt-0.5">{v.user.email}</p>}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                      <td className="font-mono text-xs text-gray-600">
                         {v.reference}
                       </td>
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                      <td className="font-semibold text-gray-900">
                         {formatNaira(v.amount)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         <StatusBadge status={v.status} />
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                      <td className="text-gray-500 text-xs whitespace-nowrap">
                         {v.paidAt ? new Date(v.paidAt).toLocaleDateString() : '—'}
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleVerifyToggle(v)}
-                          className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
-                            v.user.isPremium
-                              ? 'bg-red-50 text-red-700 hover:bg-red-100'
-                              : 'bg-green-50 text-green-700 hover:bg-green-100'
-                          }`}
-                        >
-                          {v.user.isPremium ? 'Revoke' : 'Grant'}
-                        </button>
+                      <td className="text-right">
+                        {v.user?._id ? (
+                          <button
+                            onClick={() => handleVerifyToggle(v)}
+                            className={v.user.isPremium ? 'admin-btn-danger' : 'admin-btn-primary'}
+                          >
+                            {v.user.isPremium ? 'Revoke' : 'Grant Premium'}
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -222,7 +229,6 @@ export default function AdminVerifications() {
             )}
           </div>
 
-          {/* Mobile pagination */}
           <div className="md:hidden">
             {pagination && (
               <div className="bg-white rounded-2xl border border-gray-100 mt-3">

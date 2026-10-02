@@ -364,29 +364,27 @@ export default function AdminUsers() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide">User</th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Role / Type</th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Badges</th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Phone</th>
-                    <th className="px-4 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Joined</th>
-                    <th className="px-5 py-3.5 text-right text-[11px] font-semibold text-gray-400 uppercase tracking-wide">Actions</th>
+                  <tr>
+                    <th>User</th>
+                    <th>Role / Type</th>
+                    <th>Badges</th>
+                    <th>Phone</th>
+                    <th>Joined</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody>
                   {users.map(user => (
                     <tr
                       key={user._id}
-                      className="hover:bg-gray-50/60 transition-colors cursor-pointer"
+                      className="cursor-pointer"
                       onClick={() => setSelectedUser(user)}
                     >
-                      {/* User cell */}
-                      <td className="px-5 py-3.5">
+                      <td>
                         <div className="flex items-center gap-3">
                           <Avatar user={user} size={9} />
                           <div className="min-w-0">
@@ -405,9 +403,7 @@ export default function AdminUsers() {
                           </div>
                         </div>
                       </td>
-
-                      {/* Role / Type */}
-                      <td className="px-4 py-3.5">
+                      <td>
                         <div className="flex flex-col gap-1">
                           <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide w-fit ${ROLE_STYLES[user.role] ?? 'bg-gray-100 text-gray-600'}`}>
                             {user.role}
@@ -419,9 +415,7 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </td>
-
-                      {/* Badges */}
-                      <td className="px-4 py-3.5">
+                      <td>
                         <div className="flex items-center gap-2">
                           {user.verified ? (
                             <span title="Email verified" className="w-2 h-2 rounded-full bg-[#019B5F] shrink-0" />
@@ -438,32 +432,26 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </td>
-
-                      {/* Phone */}
-                      <td className="px-4 py-3.5">
+                      <td>
                         <p className="text-xs text-gray-600 whitespace-nowrap">{user.phone ?? <span className="text-gray-300">—</span>}</p>
                       </td>
-
-                      {/* Joined */}
-                      <td className="px-4 py-3.5">
+                      <td>
                         <p className="text-xs text-gray-500 whitespace-nowrap">
                           {new Date(user.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </p>
                       </td>
-
-                      {/* Actions */}
-                      <td className="px-5 py-3.5" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-2">
                           <RoleSelect value={user.role} onChange={r => handleRoleChange(user._id, r)} size="sm" />
                           <button
                             onClick={() => handleToggleBan(user)}
-                            className={`px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-colors whitespace-nowrap ${user.isBlocked ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100'}`}
+                            className={user.isBlocked ? 'admin-btn-success' : 'admin-btn-warning'}
                           >
                             {user.isBlocked ? 'Unblock' : 'Block'}
                           </button>
                           <button
                             onClick={() => handleDelete(user)}
-                            className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            className="admin-btn-icon"
                             title="Delete user"
                           >
                             <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={1.75} />

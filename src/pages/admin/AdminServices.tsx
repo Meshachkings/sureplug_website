@@ -132,7 +132,9 @@ export default function AdminServices() {
                   <div className="min-w-0">
                     <p className="font-semibold text-gray-900 leading-snug">{service.title}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {service.provider.firstName} {service.provider.lastName}
+                      {service.provider
+                        ? `${service.provider.firstName} ${service.provider.lastName}`.trim()
+                        : 'Unknown plug'}
                     </p>
                   </div>
                   <button
@@ -145,7 +147,7 @@ export default function AdminServices() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                    {service.category.name}
+                    {service.category?.name ?? 'Uncategorized'}
                   </span>
                   <StatusBadge status={service.status} />
                   <span className="text-sm font-semibold text-gray-900">{formatNaira(service.price)}</span>
@@ -157,56 +159,65 @@ export default function AdminServices() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">Service</th>
-                    <th className="px-4 py-3 text-left">Plug</th>
-                    <th className="px-4 py-3 text-left">Category</th>
-                    <th className="px-4 py-3 text-left">Price</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Created</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                  <tr>
+                    <th>Service</th>
+                    <th>Plug</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {services.map((service) => (
                     <tr
                       key={service._id}
-                      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                      className="cursor-pointer"
                       onClick={() => setSelectedService(service)}
                     >
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900 max-w-[180px] truncate">
+                      <td>
+                        <p className="font-semibold text-gray-900 max-w-[200px] truncate">
                           {service.title}
                         </p>
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="text-gray-700">
-                          {service.provider.firstName} {service.provider.lastName}
-                        </p>
-                        <p className="text-xs text-gray-400">{service.provider.email}</p>
+                      <td>
+                        {service.provider ? (
+                          <>
+                            <p className="font-medium text-gray-900">
+                              {service.provider.firstName} {service.provider.lastName}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">{service.provider.email}</p>
+                          </>
+                        ) : (
+                          <p className="text-gray-400">Unknown plug</p>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{service.category.name}</td>
-                      <td className="px-4 py-3 font-medium text-gray-900">
+                      <td>
+                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600">
+                          {service.category?.name ?? 'Uncategorized'}
+                        </span>
+                      </td>
+                      <td className="font-semibold text-gray-900">
                         {formatNaira(service.price)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         <StatusBadge status={service.status} />
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                      <td className="text-gray-500 text-xs whitespace-nowrap">
                         {new Date(service.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="text-right">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(service); }}
-                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          className="admin-btn-icon"
                           title="Delete service"
                         >
-                          <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.5} />
+                          <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.75} />
                         </button>
                       </td>
                     </tr>

@@ -90,7 +90,7 @@ export interface AdminService {
   status: string;
   createdAt: string;
   images?: Array<{ url: string; _id?: string }>;
-  provider: {
+  provider?: {
     _id: string;
     firstName: string;
     lastName: string;
@@ -102,7 +102,7 @@ export interface AdminService {
     businessVerified?: boolean;
     avatar?: { url: string } | null;
   };
-  category: {
+  category?: {
     _id: string;
     name: string;
   };
@@ -124,13 +124,13 @@ export interface AdminBooking {
   note?: string;
   scheduledDate?: string;
   createdAt: string;
-  user: {
+  user?: {
     firstName: string;
     lastName: string;
     email: string;
     phone?: string;
   };
-  service: {
+  service?: {
     title: string;
     price: number;
   };
@@ -162,7 +162,7 @@ export interface AdminVerification {
   status: VerificationStatus;
   paidAt?: string;
   createdAt: string;
-  user: {
+  user?: {
     _id: string;
     firstName: string;
     lastName: string;
@@ -202,13 +202,13 @@ export interface AdminBusinessVerification {
     mimetype: string;
   }>;
   createdAt: string;
-  user: {
+  user?: {
     _id: string;
     firstName: string;
     lastName: string;
     email: string;
     accountType?: string;
-    businessVerified: boolean;
+    businessVerified?: boolean;
   };
 }
 

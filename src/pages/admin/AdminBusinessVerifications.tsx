@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import {
+  Cancel01Icon,
+  File01Icon,
+  Tick02Icon,
+} from '@hugeicons/core-free-icons';
 import { api, type ApiResponse, type ApiPagination } from '../../lib/adminApi';
 import type { AdminBusinessVerification, BusinessVerificationStatus } from '../../lib/adminApi';
 import Pagination from '../../components/admin/Pagination';
@@ -53,10 +57,16 @@ const STATUS_LABELS: Record<BusinessVerificationStatus, string> = {
 
 function StatusPill({ status }: { status: BusinessVerificationStatus }) {
   return (
-    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_STYLES[status]}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold leading-none ${STATUS_STYLES[status]}`}>
       {STATUS_LABELS[status]}
     </span>
   );
+}
+
+function ownerLabel(user?: AdminBusinessVerification['user']) {
+  if (!user) return 'Unknown owner';
+  const name = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+  return name || user.email || 'Unknown owner';
 }
 
 function formatBytes(bytes: number) {
@@ -108,7 +118,7 @@ function RejectModal({
             <div>
               <h3 className="text-base font-semibold text-gray-900">Reject Verification</h3>
               <p className="text-sm text-gray-500 mt-0.5">
-                {verification.businessName} · {verification.user.firstName} {verification.user.lastName}
+                {verification.businessName} · {ownerLabel(verification.user)}
               </p>
             </div>
             <button
@@ -183,7 +193,7 @@ export default function AdminBusinessVerifications() {
         adminNote: r.adminNote ?? null,
         reviewedBy: r.reviewedBy ?? null,
         reviewedAt: r.reviewedAt ?? null,
-        documents: r.documents,
+        documents: r.documents ?? [],
         createdAt: r.createdAt,
         user: r.userId,
       }));
@@ -209,7 +219,11 @@ export default function AdminBusinessVerifications() {
       setVerifications((prev) =>
         prev.map((v) =>
           v._id === target._id
-            ? { ...v, status: 'approved' as BusinessVerificationStatus, user: { ...v.user, businessVerified: true } }
+            ? {
+                ...v,
+                status: 'approved' as BusinessVerificationStatus,
+                user: v.user ? { ...v.user, businessVerified: true } : v.user,
+              }
             : v
         )
       );
@@ -245,7 +259,7 @@ export default function AdminBusinessVerifications() {
       {approveTarget && (
         <ConfirmModal
           title="Approve Business Verification"
-          message={`Approve "${approveTarget.businessName}" for ${approveTarget.user.firstName} ${approveTarget.user.lastName}? This will set their businessVerified status to true.`}
+          message={`Approve "${approveTarget.businessName}" for ${ownerLabel(approveTarget.user)}? This will set their businessVerified status to true.`}
           confirmLabel="Approve"
           variant="warning"
           onConfirm={handleApprove}
@@ -301,55 +315,59 @@ export default function AdminBusinessVerifications() {
           <div className="md:hidden space-y-3">
             {verifications.map((v) => (
               <div key={v._id} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-                <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0">
                     <p className="font-semibold text-gray-900 truncate">{v.businessName}</p>
-                    <p className="text-xs text-gray-500">
-                      {v.user.firstName} {v.user.lastName} · {v.user.email}
-                    </p>
+                    <p className="text-sm text-gray-700 mt-0.5">{ownerLabel(v.user)}</p>
+                    {v.user?.email && (
+                      <p className="text-xs text-gray-400 truncate">{v.user.email}</p>
+                    )}
                   </div>
                   <StatusPill status={v.status} />
                 </div>
 
-                {v.documents.length > 0 && (
-                  <div className="mb-2 space-y-1">
+                {(v.documents?.length ?? 0) > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-2">
                     {v.documents.map((doc, i) => (
                       <a
                         key={i}
                         href={doc.path}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-[#019B5F] hover:underline"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 hover:border-mint/40 hover:bg-mint/5 hover:text-mint transition-colors"
                       >
-                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} strokeWidth={2} color="currentColor" />
-                        {doc.filename} ({formatBytes(doc.size)})
+                        <HugeiconsIcon icon={File01Icon} size={13} strokeWidth={2} color="currentColor" />
+                        <span className="max-w-[140px] truncate">{doc.filename || `Document ${i + 1}`}</span>
+                        <span className="text-gray-400">{formatBytes(doc.size)}</span>
                       </a>
                     ))}
                   </div>
                 )}
 
                 {v.adminNote && (
-                  <p className="text-xs text-gray-500 italic mb-2 bg-gray-50 rounded-lg px-2.5 py-1.5">
+                  <p className="text-xs text-gray-500 italic mb-3 bg-gray-50 rounded-xl px-3 py-2">
                     Note: {v.adminNote}
                   </p>
                 )}
 
                 <p className="text-xs text-gray-400 mb-3">
-                  {new Date(v.createdAt).toLocaleDateString()}
+                  Submitted {new Date(v.createdAt).toLocaleDateString()}
                 </p>
 
                 {canReview(v.status) && (
                   <div className="flex gap-2">
                     <button
                       onClick={() => setApproveTarget(v)}
-                      className="flex-1 py-2.5 text-sm rounded-xl font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors min-h-[44px]"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 text-sm rounded-xl font-semibold bg-[#019B5F] text-white hover:bg-[#017a4c] transition-colors min-h-[44px]"
                     >
+                      <HugeiconsIcon icon={Tick02Icon} size={15} strokeWidth={2.2} color="currentColor" />
                       Approve
                     </button>
                     <button
                       onClick={() => setRejectTarget(v)}
-                      className="flex-1 py-2.5 text-sm rounded-xl font-medium bg-red-50 text-red-700 hover:bg-red-100 transition-colors min-h-[44px]"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 text-sm rounded-xl font-semibold border border-red-200 text-red-600 hover:bg-red-50 transition-colors min-h-[44px]"
                     >
+                      <HugeiconsIcon icon={Cancel01Icon} size={15} strokeWidth={2.2} color="currentColor" />
                       Reject
                     </button>
                   </div>
@@ -358,76 +376,80 @@ export default function AdminBusinessVerifications() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">Business</th>
-                    <th className="px-4 py-3 text-left">Owner</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Documents</th>
-                    <th className="px-4 py-3 text-left">Submitted</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                  <tr>
+                    <th>Business</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Documents</th>
+                    <th>Submitted</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {verifications.map((v) => (
-                    <tr key={v._id} className="hover:bg-gray-50/50 transition-colors align-top">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{v.businessName}</p>
+                    <tr key={v._id}>
+                      <td>
+                        <p className="font-semibold text-gray-900">{v.businessName}</p>
                         {v.adminNote && (
-                          <p className="text-xs text-gray-400 italic mt-0.5 max-w-[200px] truncate" title={v.adminNote}>
+                          <p className="text-xs text-gray-400 italic mt-1 max-w-[220px] truncate" title={v.adminNote}>
                             Note: {v.adminNote}
                           </p>
                         )}
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">
-                          {v.user.firstName} {v.user.lastName}
-                        </p>
-                        <p className="text-xs text-gray-400">{v.user.email}</p>
+                      <td>
+                        <p className="font-medium text-gray-900">{ownerLabel(v.user)}</p>
+                        {v.user?.email && (
+                          <p className="text-xs text-gray-400 mt-0.5">{v.user.email}</p>
+                        )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         <StatusPill status={v.status} />
                       </td>
-                      <td className="px-4 py-3">
-                        {v.documents.length === 0 ? (
-                          <span className="text-gray-400 text-xs">—</span>
+                      <td>
+                        {(v.documents?.length ?? 0) === 0 ? (
+                          <span className="text-gray-400 text-xs">No documents</span>
                         ) : (
-                          <div className="space-y-0.5">
+                          <div className="flex flex-col gap-1.5">
                             {v.documents.map((doc, i) => (
                               <a
                                 key={i}
                                 href={doc.path}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block text-xs text-[#019B5F] hover:underline truncate max-w-[160px]"
+                                className="inline-flex items-center gap-1.5 max-w-[200px] text-xs font-medium text-gray-700 hover:text-mint transition-colors"
                                 title={doc.filename}
                               >
-                                {doc.filename}
+                                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-mint/10 text-mint">
+                                  <HugeiconsIcon icon={File01Icon} size={13} strokeWidth={2} color="currentColor" />
+                                </span>
+                                <span className="truncate">{doc.filename || `Document ${i + 1}`}</span>
                               </a>
                             ))}
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
+                      <td className="text-xs text-gray-500 whitespace-nowrap">
                         {new Date(v.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="text-right">
                         {canReview(v.status) ? (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="inline-flex items-center gap-2">
                             <button
                               onClick={() => setApproveTarget(v)}
-                              className="px-3 py-1 text-xs rounded-lg font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                              className="admin-btn-primary"
                             >
+                              <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.2} color="currentColor" />
                               Approve
                             </button>
                             <button
                               onClick={() => setRejectTarget(v)}
-                              className="px-3 py-1 text-xs rounded-lg font-medium bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                              className="admin-btn-danger"
                             >
+                              <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2.2} color="currentColor" />
                               Reject
                             </button>
                           </div>

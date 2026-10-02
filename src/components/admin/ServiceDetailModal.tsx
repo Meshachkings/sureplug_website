@@ -73,7 +73,7 @@ export default function ServiceDetailModal({ service, onClose, onDelete }: Props
             </div>
           )}
           <div className="px-5 sm:px-6 py-1">
-          <Row label="Category">{service.category.name}</Row>
+          <Row label="Category">{service.category?.name ?? 'Uncategorized'}</Row>
           <Row label="Price">
             <span className="font-semibold">{formatNaira(service.price)}</span>
             <span className="text-gray-400 font-normal">/hr</span>
@@ -84,35 +84,40 @@ export default function ServiceDetailModal({ service, onClose, onDelete }: Props
           {/* Plug section */}
           <div className="mt-3 mb-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-3">Plug</p>
-            <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
-              {service.provider.avatar?.url ? (
-                <img
-                  src={service.provider.avatar.url}
-                  alt=""
-                  className="w-9 h-9 rounded-full object-cover shrink-0"
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-[#019B5F]/10 flex items-center justify-center text-[#019B5F] text-sm font-bold shrink-0">
-                  {service.provider.firstName[0]}{service.provider.lastName[0]}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
-                    {service.provider.firstName} {service.provider.lastName}
-                  </p>
-                  <ProviderBadges
-                    isVerified={isUserVerified(service.provider)}
-                    isPremium={service.provider.isPremium}
-                    size={16}
+            {service.provider ? (
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
+                {service.provider.avatar?.url ? (
+                  <img
+                    src={service.provider.avatar.url}
+                    alt=""
+                    className="w-9 h-9 rounded-full object-cover shrink-0"
                   />
-                </div>
-                <p className="text-xs text-gray-400 truncate">{service.provider.email}</p>
-                {service.provider.suretag && (
-                  <p className="text-xs text-gray-400">@{service.provider.suretag}</p>
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#019B5F]/10 flex items-center justify-center text-[#019B5F] text-sm font-bold shrink-0">
+                    {(service.provider.firstName?.[0] ?? '?')}
+                    {(service.provider.lastName?.[0] ?? '')}
+                  </div>
                 )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {service.provider.firstName} {service.provider.lastName}
+                    </p>
+                    <ProviderBadges
+                      isVerified={isUserVerified(service.provider)}
+                      isPremium={service.provider.isPremium}
+                      size={16}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 truncate">{service.provider.email}</p>
+                  {service.provider.suretag && (
+                    <p className="text-xs text-gray-400">@{service.provider.suretag}</p>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-sm text-gray-400 bg-gray-50 rounded-xl p-3">Unknown plug</p>
+            )}
           </div>
           </div>
         </div>

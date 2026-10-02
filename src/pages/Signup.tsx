@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
 import { api, type ApiResponse, type User } from '../lib/api';
 
 type AccountType = 'customer' | 'handyman' | 'business';
@@ -130,16 +131,14 @@ const Signup = () => {
           <label htmlFor="password" className="auth-label">
             Password
           </label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             required
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="At least 8 characters"
-            className="auth-input"
           />
         </div>
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { api, type ApiResponse, type ApiPagination } from '../../lib/adminApi';
@@ -200,10 +200,16 @@ export default function AdminBookings() {
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="min-w-0">
                       <p className="font-semibold text-gray-900 truncate">
-                        {booking.user.firstName} {booking.user.lastName}
+                        {booking.user
+                          ? `${booking.user.firstName} ${booking.user.lastName}`.trim()
+                          : 'Unknown customer'}
                       </p>
-                      <p className="text-sm text-gray-600 truncate">{booking.service.title}</p>
-                      <p className="text-xs text-gray-400">{formatNaira(booking.service.price)}</p>
+                      <p className="text-sm text-gray-600 truncate">
+                        {booking.service?.title ?? 'Deleted service'}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {formatNaira(booking.service?.price ?? 0)}
+                      </p>
                     </div>
                     <div className="flex-shrink-0 flex flex-col items-end gap-1.5">
                       <StatusBadge status={booking.status} />
@@ -225,7 +231,7 @@ export default function AdminBookings() {
                   <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <p className="text-xs text-gray-400 mb-0.5">Phone</p>
-                      <p className="font-medium text-gray-800">{booking.user.phone ?? '—'}</p>
+                      <p className="font-medium text-gray-800">{booking.user?.phone ?? '—'}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400 mb-0.5">Note</p>
@@ -241,56 +247,60 @@ export default function AdminBookings() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">Customer</th>
-                    <th className="px-4 py-3 text-left">Service</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Scheduled</th>
-                    <th className="px-4 py-3 text-left">Created</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Scheduled</th>
+                    <th>Created</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {bookings.map((booking) => (
-                    <>
+                    <Fragment key={booking._id}>
                       <tr
-                        key={booking._id}
-                        className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                        className="cursor-pointer"
                         onClick={() =>
                           setExpandedId(expandedId === booking._id ? null : booking._id)
                         }
                       >
-                        <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900">
-                            {booking.user.firstName} {booking.user.lastName}
-                          </p>
-                          <p className="text-xs text-gray-400">{booking.user.email}</p>
+                        <td>
+                          {booking.user ? (
+                            <>
+                              <p className="font-semibold text-gray-900">
+                                {booking.user.firstName} {booking.user.lastName}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-0.5">{booking.user.email}</p>
+                            </>
+                          ) : (
+                            <p className="text-gray-400">Unknown customer</p>
+                          )}
                         </td>
-                        <td className="px-4 py-3">
-                          <p className="text-gray-700 max-w-[150px] truncate">
-                            {booking.service.title}
+                        <td>
+                          <p className="font-medium text-gray-900 max-w-[180px] truncate">
+                            {booking.service?.title ?? 'Deleted service'}
                           </p>
-                          <p className="text-xs text-gray-400">
-                            {formatNaira(booking.service.price)}
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {formatNaira(booking.service?.price ?? 0)}
                           </p>
                         </td>
-                        <td className="px-4 py-3">
+                        <td>
                           <StatusBadge status={booking.status} />
                         </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                        <td className="text-gray-500 text-xs whitespace-nowrap">
                           {booking.scheduledDate
                             ? new Date(booking.scheduledDate).toLocaleDateString()
                             : '—'}
                         </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                        <td className="text-gray-500 text-xs whitespace-nowrap">
                           {new Date(booking.createdAt).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                        <td className="text-right" onClick={(e) => e.stopPropagation()}>
                           <BookingStatusSelect
                             value={booking.status}
                             onChange={(s) => handleStatusChange(booking, s)}
@@ -299,26 +309,26 @@ export default function AdminBookings() {
                         </td>
                       </tr>
                       {expandedId === booking._id && (
-                        <tr key={`${booking._id}-detail`} className="bg-gray-50/70">
-                          <td colSpan={6} className="px-6 py-4">
+                        <tr className="!bg-gray-50/80 hover:!bg-gray-50/80">
+                          <td colSpan={6} className="!py-4">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
-                                <p className="text-xs text-gray-400 mb-0.5">Phone</p>
-                                <p className="font-medium">{booking.user.phone ?? '—'}</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Phone</p>
+                                <p className="font-medium text-gray-800">{booking.user?.phone ?? '—'}</p>
                               </div>
                               <div>
-                                <p className="text-xs text-gray-400 mb-0.5">Note</p>
-                                <p className="font-medium">{booking.note ?? '—'}</p>
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Note</p>
+                                <p className="font-medium text-gray-800">{booking.note ?? '—'}</p>
                               </div>
-                              <div>
-                                <p className="text-xs text-gray-400 mb-0.5">Booking ID</p>
-                                <p className="font-mono text-xs">{booking._id}</p>
+                              <div className="col-span-2">
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-1">Booking ID</p>
+                                <p className="font-mono text-xs text-gray-600 break-all">{booking._id}</p>
                               </div>
                             </div>
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   ))}
                 </tbody>
               </table>

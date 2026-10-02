@@ -70,6 +70,58 @@
   .auth-otp-input {
     @apply w-11 h-12 sm:w-12 sm:h-14 rounded-xl border border-gray-200 bg-white text-center text-lg font-semibold text-gray-900 outline-none transition-colors focus:border-mint focus:ring-1 focus:ring-mint/30;
   }
+
+  .admin-table-wrap {
+    @apply hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
+  }
+
+  .admin-table {
+    @apply w-full text-sm;
+  }
+
+  .admin-table thead tr {
+    @apply border-b border-gray-100 bg-gray-50/80 text-[11px] uppercase tracking-[0.08em] text-gray-500;
+  }
+
+  .admin-table th {
+    @apply px-5 py-3.5 text-left font-semibold;
+  }
+
+  .admin-table tbody {
+    @apply divide-y divide-gray-100;
+  }
+
+  .admin-table tbody tr {
+    @apply hover:bg-gray-50/60 transition-colors;
+  }
+
+  .admin-table td {
+    @apply px-5 py-4 align-middle;
+  }
+
+  .admin-btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors bg-[#019B5F] text-white hover:bg-[#017a4c];
+  }
+
+  .admin-btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors border border-gray-200 bg-white text-gray-700 hover:bg-gray-50;
+  }
+
+  .admin-btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors border border-red-200 bg-white text-red-600 hover:bg-red-50;
+  }
+
+  .admin-btn-warning {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100;
+  }
+
+  .admin-btn-success {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors border border-green-200 bg-green-50 text-green-700 hover:bg-green-100;
+  }
+
+  .admin-btn-icon {
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-full text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors;
+  }
 }
 
 @layer utilities {

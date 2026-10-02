@@ -9,6 +9,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import AuthLayout from '../components/AuthLayout';
 import OtpInput from '../components/OtpInput';
+import PasswordInput from '../components/PasswordInput';
 import { api, type ApiResponse, type User } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -257,16 +258,14 @@ export default function BecomeProvider() {
           </div>
           <div>
             <label htmlFor="password" className="auth-label">Password</label>
-            <input
+            <PasswordInput
               id="password"
-              type="password"
               required
               minLength={8}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
-              className="auth-input"
             />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}

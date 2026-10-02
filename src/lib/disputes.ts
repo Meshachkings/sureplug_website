@@ -54,8 +54,8 @@ export type Dispute = {
     };
     address?: { street?: string; city?: string; state?: string };
   };
-  raisedBy: { _id: string; firstName: string; lastName: string };
-  provider: { _id: string; firstName: string; lastName: string };
+  raisedBy?: { _id: string; firstName: string; lastName: string };
+  provider?: { _id: string; firstName: string; lastName: string };
   reason: DisputeReason;
   description: string;
   evidence: DisputeEvidence[];

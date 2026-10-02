@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import PasswordInput from '../components/PasswordInput';
 import { api, type ApiResponse } from '../lib/api';
 
 type LocationState = {
@@ -55,16 +56,14 @@ const ResetPassword = () => {
           <label htmlFor="password" className="auth-label">
             New password
           </label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             required
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="At least 8 characters"
-            className="auth-input"
           />
         </div>
 
@@ -72,16 +71,14 @@ const ResetPassword = () => {
           <label htmlFor="confirmPassword" className="auth-label">
             Confirm password
           </label>
-          <input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             autoComplete="new-password"
             required
             minLength={8}
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
             placeholder="Re-enter your password"
-            className="auth-input"
           />
         </div>
 

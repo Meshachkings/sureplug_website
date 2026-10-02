@@ -132,50 +132,53 @@ export default function AdminReviews() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">Rating</th>
-                    <th className="px-4 py-3 text-left">Comment</th>
-                    <th className="px-4 py-3 text-left">Service</th>
-                    <th className="px-4 py-3 text-left">Reviewer</th>
-                    <th className="px-4 py-3 text-left">Date</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                  <tr>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Service</th>
+                    <th>Reviewer</th>
+                    <th>Date</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {reviews.map((review) => (
-                    <tr key={review._id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 py-3">
+                    <tr key={review._id}>
+                      <td>
                         <StarRating rating={review.rating} />
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="text-gray-700 max-w-[220px] truncate" title={review.comment}>
+                      <td>
+                        <p className="text-gray-700 max-w-[240px] truncate" title={review.comment}>
                           {review.comment}
                         </p>
                       </td>
-                      <td className="px-4 py-3 text-gray-600 max-w-[140px] truncate">
+                      <td className="text-gray-600 max-w-[160px] truncate">
                         {review.service?.title ?? <span className="text-gray-400">—</span>}
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="text-gray-700">
-                          {review.user?.firstName} {review.user?.lastName}
+                      <td>
+                        <p className="font-medium text-gray-900">
+                          {review.user
+                            ? `${review.user.firstName ?? ''} ${review.user.lastName ?? ''}`.trim() || 'Unknown'
+                            : 'Unknown'}
                         </p>
-                        <p className="text-xs text-gray-400">{review.user?.email}</p>
+                        {review.user?.email && (
+                          <p className="text-xs text-gray-400 mt-0.5">{review.user.email}</p>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                      <td className="text-gray-500 text-xs whitespace-nowrap">
                         {new Date(review.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="text-right">
                         <button
                           onClick={() => handleDelete(review)}
-                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          className="admin-btn-icon"
                           title="Delete review"
                         >
-                          <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.5} />
+                          <HugeiconsIcon icon={Delete02Icon} size={15} strokeWidth={1.75} />
                         </button>
                       </td>
                     </tr>

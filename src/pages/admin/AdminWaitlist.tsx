@@ -88,32 +88,37 @@ export default function AdminWaitlist() {
             ))}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="admin-table-wrap">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="admin-table">
                 <thead>
-                  <tr className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wide">
-                    <th className="px-4 py-3 text-left">Email</th>
-                    <th className="px-4 py-3 text-left">Phone</th>
-                    <th className="px-4 py-3 text-left">Service Interest</th>
-                    <th className="px-4 py-3 text-left">Discount Code</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left">Date</th>
+                  <tr>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Service Interest</th>
+                    <th>Discount Code</th>
+                    <th>Status</th>
+                    <th>Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody>
                   {entries.map((entry) => (
-                    <tr key={entry._id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 py-3 text-gray-900">{entry.email}</td>
-                      <td className="px-4 py-3 text-gray-600">{entry.phone ?? '—'}</td>
-                      <td className="px-4 py-3 text-gray-600">{entry.service ?? '—'}</td>
-                      <td className="px-4 py-3 font-medium tracking-wide text-gray-800">
-                        {entry.discountCode ?? '—'}
+                    <tr key={entry._id}>
+                      <td className="font-medium text-gray-900">{entry.email}</td>
+                      <td className="text-gray-600">{entry.phone ?? '—'}</td>
+                      <td className="text-gray-600">{entry.service ?? '—'}</td>
+                      <td>
+                        {entry.discountCode ? (
+                          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-gray-700">
+                            {entry.discountCode}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td>
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                             entry.discountRedeemedAt
                               ? 'bg-gray-100 text-gray-500'
                               : 'bg-mint/10 text-mint'
@@ -122,7 +127,7 @@ export default function AdminWaitlist() {
                           {entry.discountRedeemedAt ? 'Redeemed' : 'Available'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                      <td className="text-gray-500 text-xs whitespace-nowrap">
                         {new Date(entry.createdAt).toLocaleDateString()}
                       </td>
                     </tr>

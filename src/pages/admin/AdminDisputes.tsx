@@ -102,7 +102,7 @@ export default function AdminDisputes() {
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
           {loading ? (
             <div className="p-8 text-sm text-gray-400">Loading…</div>
           ) : disputes.length === 0 ? (
@@ -114,17 +114,23 @@ export default function AdminDisputes() {
                   <button
                     type="button"
                     onClick={() => setSelected(dispute)}
-                    className={`w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors ${
-                      selected?._id === dispute._id ? 'bg-gray-50' : ''
+                    className={`w-full text-left px-5 py-4 transition-colors ${
+                      selected?._id === dispute._id ? 'bg-mint/5' : 'hover:bg-gray-50/60'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-gray-900 truncate">
-                          {dispute.booking.service?.title ?? 'Booking dispute'}
+                          {dispute.booking?.service?.title ?? 'Booking dispute'}
                         </p>
                         <p className="mt-1 text-xs text-gray-500">
-                          {dispute.raisedBy.firstName} {dispute.raisedBy.lastName} vs {dispute.provider.firstName} {dispute.provider.lastName}
+                          {dispute.raisedBy
+                            ? `${dispute.raisedBy.firstName} ${dispute.raisedBy.lastName}`.trim()
+                            : 'Unknown'}{' '}
+                          vs{' '}
+                          {dispute.provider
+                            ? `${dispute.provider.firstName} ${dispute.provider.lastName}`.trim()
+                            : 'Unknown'}
                         </p>
                       </div>
                       <StatusBadge status={dispute.status} />
@@ -137,17 +143,19 @@ export default function AdminDisputes() {
           {pagination && <Pagination pagination={pagination} onPageChange={setPage} />}
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 min-h-[320px]">
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 min-h-[320px] shadow-sm">
           {!selected ? (
             <p className="text-sm text-gray-500">Select a dispute to review details.</p>
           ) : (
             <div className="space-y-4">
               <div>
                 <h2 className="text-base font-semibold text-gray-900">
-                  {selected.booking.service?.title ?? 'Booking dispute'}
+                  {selected.booking?.service?.title ?? 'Booking dispute'}
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">{disputeReasonLabel(selected.reason)}</p>
-                <StatusBadge status={selected.status} />
+                <div className="mt-2">
+                  <StatusBadge status={selected.status} />
+                </div>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">{selected.description}</p>
               {selected.providerResponse && (
@@ -171,16 +179,16 @@ export default function AdminDisputes() {
                 className="auth-input resize-none"
               />
               <div className="flex flex-wrap gap-2">
-                <button type="button" disabled={actionLoading} onClick={() => updateStatus('under_review')} className="btn-pill-outline">
+                <button type="button" disabled={actionLoading} onClick={() => updateStatus('under_review')} className="admin-btn-secondary">
                   Mark under review
                 </button>
-                <button type="button" disabled={actionLoading} onClick={() => resolveDispute('resolved_customer')} className="btn-pill">
+                <button type="button" disabled={actionLoading} onClick={() => resolveDispute('resolved_customer')} className="admin-btn-primary">
                   Resolve for customer
                 </button>
-                <button type="button" disabled={actionLoading} onClick={() => resolveDispute('resolved_provider')} className="btn-pill-outline">
+                <button type="button" disabled={actionLoading} onClick={() => resolveDispute('resolved_provider')} className="admin-btn-secondary">
                   Resolve for provider
                 </button>
-                <button type="button" disabled={actionLoading} onClick={() => resolveDispute('closed')} className="btn-pill-secondary">
+                <button type="button" disabled={actionLoading} onClick={() => resolveDispute('closed')} className="admin-btn-danger">
                   Close
                 </button>
               </div>

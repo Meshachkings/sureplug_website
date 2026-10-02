@@ -3,6 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Camera01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
 import { useAuth } from '../../context/AuthContext';
 import { api, type ApiResponse, type User } from '../../lib/api';
+import PasswordInput from '../../components/PasswordInput';
 
 type AccountType = 'customer' | 'handyman' | 'business';
 
@@ -321,25 +322,23 @@ export default function DashboardProfile() {
         <form onSubmit={handlePasswordSubmit} className="space-y-4">
           <div>
             <label className="auth-label">Current password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="Enter current password"
-              className="auth-input"
+              autoComplete="current-password"
             />
           </div>
           <div>
             <label className="auth-label">New password</label>
-            <input
-              type="password"
+            <PasswordInput
               required
               minLength={8}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="At least 8 characters"
-              className="auth-input"
+              autoComplete="new-password"
             />
           </div>
           {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}

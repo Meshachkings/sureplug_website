@@ -22,8 +22,8 @@ export default function DashboardDisputeDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [notice, setNotice] = useState('');
 
-  const isProvider = user?._id === dispute?.provider._id;
-  const isCustomer = user?._id === dispute?.raisedBy._id;
+  const isProvider = user?._id === dispute?.provider?._id;
+  const isCustomer = user?._id === dispute?.raisedBy?._id;
   const isActive = dispute ? ACTIVE_DISPUTE_STATUSES.includes(dispute.status) : false;
 
   useEffect(() => {

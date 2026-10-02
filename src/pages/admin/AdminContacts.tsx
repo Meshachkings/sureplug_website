@@ -60,7 +60,7 @@ export default function AdminContacts() {
         {loading ? (
           <div className="divide-y divide-gray-100">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="px-4 py-4 animate-pulse">
+              <div key={i} className="px-5 py-4 animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-1/4 mb-2" />
                 <div className="h-3 bg-gray-100 rounded w-3/4" />
               </div>
@@ -73,43 +73,47 @@ export default function AdminContacts() {
         ) : (
           <>
             <div className="divide-y divide-gray-100">
-              {contacts.map((contact) => (
-                <div key={contact._id}>
-                  <button
-                    className="w-full text-left px-4 py-4 hover:bg-gray-50/50 transition-colors min-h-[44px]"
-                    onClick={() =>
-                      setExpandedId(expandedId === contact._id ? null : contact._id)
-                    }
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="font-medium text-gray-900">{contact.name}</p>
-                        <p className="text-xs text-gray-400 break-all">{contact.email}</p>
+              {contacts.map((contact) => {
+                const open = expandedId === contact._id;
+                return (
+                  <div key={contact._id} className={open ? 'bg-gray-50/50' : ''}>
+                    <button
+                      className="w-full text-left px-5 py-4 hover:bg-gray-50/60 transition-colors"
+                      onClick={() => setExpandedId(open ? null : contact._id)}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900">{contact.name}</p>
+                          <p className="text-xs text-gray-400 break-all mt-0.5">{contact.email}</p>
+                          {!open && (
+                            <p className="mt-2 text-sm text-gray-500 line-clamp-1">{contact.message}</p>
+                          )}
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-xs text-gray-400 whitespace-nowrap">
+                            {new Date(contact.createdAt).toLocaleDateString()}
+                          </p>
+                          <span className="mt-2 inline-flex text-[11px] font-semibold text-mint">
+                            {open ? 'Hide' : 'View'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right flex-shrink-0 max-w-[40%]">
-                        <p className="text-xs text-gray-400">
-                          {new Date(contact.createdAt).toLocaleDateString()}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1 truncate text-right">
-                          {contact.message}
-                        </p>
+                    </button>
+                    {open && (
+                      <div className="px-5 pb-5">
+                        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-400 mb-2">
+                            Message
+                          </p>
+                          <p className="text-sm text-gray-700 whitespace-pre-wrap break-words leading-relaxed">
+                            {contact.message}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                  {expandedId === contact._id && (
-                    <div className="px-4 pb-4 bg-gray-50/50">
-                      <div className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs text-gray-400 mb-1.5 uppercase tracking-wide font-medium">
-                          Message
-                        </p>
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap break-words">
-                          {contact.message}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {pagination && (
               <Pagination pagination={pagination} onPageChange={setPage} />
