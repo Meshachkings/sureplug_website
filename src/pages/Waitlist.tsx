@@ -1,8 +1,8 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ArrowUpRight01Icon,
+  ArrowRight01Icon,
   Copy01Icon,
   Facebook01Icon,
   InstagramIcon,
@@ -12,6 +12,8 @@ import {
 } from '@hugeicons/core-free-icons';
 import { api, type ApiResponse } from '../lib/api';
 import ServiceSelect from '../components/ServiceSelect';
+
+const PAGE_BG = '#0f1c18';
 
 function SurePlugMark({ size = 72, className = '' }: { size?: number; className?: string }) {
   return (
@@ -37,7 +39,7 @@ function SurePlugMark({ size = 72, className = '' }: { size?: number; className?
 }
 
 const siteLogo =
-  'https://res.cloudinary.com/dujux4xcs/image/upload/v1743514302/Group_21_zddu9f.svg';
+  'https://res.cloudinary.com/dujux4xcs/image/upload/v1743598694/Group_21_1_j2gixb.svg';
 
 const socialLinks = [
   { icon: NewTwitterIcon, label: 'X', href: '#' },
@@ -58,21 +60,18 @@ const announcements = [
     date: '25-08-2026',
     body: 'Sign up now and we will email you the moment SurePlug is ready in your city.',
     person: 'Product',
-    role: 'SurePlug',
   },
   {
     title: 'iOS & Android',
     date: '12-08-2026',
     body: 'The apps are in development. You will get the download link as soon as we launch.',
     person: 'Mobile',
-    role: 'SurePlug',
   },
   {
     title: 'Starting in Lagos',
     date: '04-08-2026',
     body: 'We are launching first in Lagos, then rolling out to more cities across Nigeria.',
     person: 'Launch',
-    role: 'SurePlug',
   },
 ];
 
@@ -120,42 +119,22 @@ const Waitlist = () => {
     }
   };
 
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.backgroundColor;
+    const prevBody = body.style.backgroundColor;
+    html.style.backgroundColor = PAGE_BG;
+    body.style.backgroundColor = PAGE_BG;
+    return () => {
+      html.style.backgroundColor = prevHtml;
+      body.style.backgroundColor = prevBody;
+    };
+  }, []);
+
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#ececee] text-gray-900 selection:bg-mint/20">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <svg
-          className="absolute inset-0 h-full w-full"
-          viewBox="0 0 1440 1024"
-          fill="none"
-          preserveAspectRatio="xMidYMin slice"
-        >
-          <rect width="1440" height="1024" fill="#ececee" />
-          <path
-            d="M-80 0 H1520 V90 C1280 40 1100 150 900 95 C680 35 480 155 280 85 C140 38 40 110 -80 70 Z"
-            fill="#f7f7f8"
-          />
-          <path
-            d="M-120 210 C80 130 280 290 520 200 C760 110 980 250 1220 175 C1340 140 1440 190 1560 160 L1560 0 L-120 0 Z"
-            fill="#e8e8ea"
-          />
-          <path
-            d="M-160 340 C140 240 420 430 720 330 C1000 235 1240 410 1600 310 L1600 1024 L-160 1024 Z"
-            fill="#e3e3e5"
-          />
-          <path
-            d="M-100 255 C200 175 460 345 740 255 C1020 165 1260 315 1540 245"
-            stroke="#dddde0"
-            strokeWidth="70"
-            fill="none"
-          />
-          <path
-            d="M-80 310 C240 230 520 390 800 300 C1060 220 1300 360 1560 290"
-            stroke="#f4f4f5"
-            strokeWidth="42"
-            fill="none"
-          />
-        </svg>
-      </div>
+    <div className="relative min-h-screen overflow-x-hidden text-white selection:bg-mint/30" style={{ backgroundColor: PAGE_BG }}>
+      <div className="pointer-events-none fixed inset-0 -z-10" style={{ backgroundColor: PAGE_BG }} aria-hidden />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 sm:px-6 lg:px-8">
         <header className="grid grid-cols-[1fr_auto] items-center gap-3 py-5 sm:grid-cols-3 sm:py-7">
@@ -165,7 +144,7 @@ const Waitlist = () => {
 
           <a
             href="mailto:hello@sureplug.com"
-            className="hidden items-center justify-center gap-2 justify-self-center text-[13px] text-gray-500 hover:text-gray-800 sm:inline-flex"
+            className="hidden items-center justify-center gap-2 justify-self-center text-[13px] text-white/55 hover:text-white sm:inline-flex"
           >
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22c55e] opacity-70" />
@@ -174,13 +153,13 @@ const Waitlist = () => {
             hello@sureplug.com
           </a>
 
-          <div className="flex items-center justify-self-end gap-3.5 text-gray-900">
+          <div className="flex items-center justify-self-end gap-3.5 text-white/80">
             {socialLinks.map((social) => (
               <a
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
-                className="transition-opacity hover:opacity-60"
+                className="transition-opacity hover:opacity-100 hover:text-white"
               >
                 <HugeiconsIcon icon={social.icon} size={16} color="currentColor" strokeWidth={1.8} />
               </a>
@@ -189,18 +168,18 @@ const Waitlist = () => {
         </header>
 
         <main className="flex flex-1 flex-col items-center pt-8 text-center sm:pt-14 lg:pt-16">
-          <SurePlugMark size={72} className="drop-shadow-[0_18px_40px_rgba(0,0,0,0.14)]" />
+          <SurePlugMark size={72} className="drop-shadow-[0_18px_50px_rgba(1,219,134,0.28)]" />
 
-          <h1 className="mt-7 max-w-xl text-[1.85rem] font-semibold leading-[1.15] tracking-tight text-gray-900 sm:mt-8 sm:text-[2.35rem] lg:text-[2.6rem]">
+          <h1 className="mt-7 max-w-xl text-[1.85rem] font-semibold leading-[1.15] tracking-tight text-white sm:mt-8 sm:text-[2.35rem] lg:text-[2.6rem]">
             Early access before launch
           </h1>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-gray-500 sm:text-[15px]">
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-white/55 sm:text-[15px]">
             Be first in line to book skilled plugs for home repairs, cleaning, moving, and more.
           </p>
 
           <div className="mt-8 w-full max-w-[440px] sm:mt-9">
             {joined ? (
-              <div className="rounded-3xl bg-white px-6 py-6 text-left shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
+              <div className="rounded-3xl bg-white px-6 py-6 text-left shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
                 <p className="text-sm leading-relaxed text-gray-600">
                   You&apos;re on the list. We&apos;ll write to{' '}
                   <span className="font-medium text-gray-900">{email}</span> when we launch.
@@ -237,7 +216,7 @@ const Waitlist = () => {
             ) : (
               <form
                 onSubmit={handleSubmit}
-                className="relative overflow-visible rounded-3xl bg-white p-2 text-left shadow-[0_10px_40px_rgba(0,0,0,0.06)]"
+                className="relative overflow-visible rounded-3xl bg-white p-2 text-left shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
               >
                 <label htmlFor="waitlist-email" className="sr-only">
                   Email address
@@ -250,7 +229,7 @@ const Waitlist = () => {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="Your email here"
-                  className="w-full bg-transparent px-4 py-3.5 text-sm text-gray-900 outline-none placeholder:text-gray-400"
+                  className="w-full bg-transparent px-4 py-4 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:py-3.5 sm:text-[15px]"
                 />
 
                 <div className="mx-4 h-px bg-gray-100" />
@@ -266,7 +245,7 @@ const Waitlist = () => {
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
                   placeholder="Phone number"
-                  className="w-full bg-transparent px-4 py-3.5 text-sm text-gray-900 outline-none placeholder:text-gray-400"
+                  className="w-full bg-transparent px-4 py-4 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:py-3.5 sm:text-[15px]"
                 />
 
                 <div className="mx-4 h-px bg-gray-100" />
@@ -282,11 +261,11 @@ const Waitlist = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-1 inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-[#111] text-sm font-medium text-white transition-colors hover:bg-black disabled:opacity-70"
+                  className="mt-1 inline-flex h-14 w-full items-center justify-center gap-1.5 rounded-full bg-[#019B5F] text-base font-medium text-white transition-colors hover:bg-[#017a4c] disabled:opacity-70 sm:h-12 sm:text-sm"
                 >
                   {loading ? 'Joining…' : 'Join Waitlist'}
                   {!loading && (
-                    <HugeiconsIcon icon={ArrowUpRight01Icon} size={15} color="currentColor" strokeWidth={2} />
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2.5} />
                   )}
                 </button>
               </form>
@@ -300,50 +279,46 @@ const Waitlist = () => {
                   key={src}
                   src={src}
                   alt=""
-                  className="h-8 w-8 rounded-full border-2 border-white object-cover"
+                  className="h-8 w-8 rounded-full border-2 border-[#0f1c18] object-cover"
                 />
               ))}
             </div>
-            <p className="text-[13px] text-gray-500">Join others on the waitlist</p>
+            <p className="text-[13px] text-white/50">Join others on the waitlist</p>
           </div>
 
           <section className="mt-16 w-full pb-16 sm:mt-20 sm:pb-20">
             <div className="mb-8 flex items-center gap-4">
-              <div className="h-px flex-1 bg-black/10" />
-              <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3 py-1 text-[12px] text-gray-600 shadow-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-gray-900" />
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[12px] text-white/65 backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-mint" />
                 Announcements
               </span>
-              <div className="h-px flex-1 bg-black/10" />
+              <div className="h-px flex-1 bg-white/10" />
             </div>
 
             <div className="space-y-4 text-left">
               {announcements.map((item) => (
                 <article
                   key={item.title}
-                  className="relative ml-4 rounded-2xl bg-white py-5 pl-8 pr-5 shadow-[0_8px_30px_rgba(0,0,0,0.05)] sm:ml-5 sm:py-6 sm:pl-10 sm:pr-6"
+                  className="relative ml-4 rounded-2xl border border-white/10 bg-white/[0.06] py-5 pl-8 pr-5 backdrop-blur-sm sm:ml-5 sm:py-6 sm:pl-10 sm:pr-6"
                 >
-                  <span className="absolute -left-4 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-[#111] sm:top-1/2 sm:-translate-y-1/2">
+                  <span className="absolute -left-4 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-mint sm:top-1/2 sm:-translate-y-1/2">
                     <HugeiconsIcon icon={PinIcon} size={14} color="#ffffff" strokeWidth={1.8} />
                   </span>
 
-                  <div className="grid gap-4 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)_auto] sm:items-center sm:gap-6">
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)_auto] sm:items-center sm:gap-6">
                     <div>
-                      <h2 className="text-[15px] font-semibold text-gray-900">{item.title}</h2>
-                      <p className="mt-1 text-xs text-gray-400">{item.date}</p>
+                      <h2 className="text-[15px] font-semibold text-white">{item.title}</h2>
+                      <p className="mt-1 text-xs text-white/40">{item.date}</p>
                     </div>
 
-                    <p className="border-black/5 text-sm leading-relaxed text-gray-500 sm:border-l sm:pl-6">
+                    <p className="border-white/10 text-sm leading-relaxed text-white/55 sm:border-l sm:pl-6">
                       {item.body}
                     </p>
 
-                    <div className="flex items-center gap-2.5 sm:border-l sm:border-black/5 sm:pl-6">
-                      <SurePlugMark size={32} className="shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-medium leading-tight text-gray-900">{item.person}</p>
-                        <p className="text-[11px] text-gray-400">{item.role}</p>
-                      </div>
-                    </div>
+                    <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-white/35 sm:border-l sm:border-white/10 sm:pl-6 sm:text-right">
+                      {item.person}
+                    </p>
                   </div>
                 </article>
               ))}

@@ -97,7 +97,7 @@ const ServiceSelect = ({
       </label>
       <div className="flex items-center">
         <span className="pl-4 text-gray-400">
-          <HugeiconsIcon icon={Search01Icon} size={15} color="currentColor" strokeWidth={2} />
+          <HugeiconsIcon icon={Search01Icon} size={18} color="currentColor" strokeWidth={2} />
         </span>
         <input
           ref={inputRef}
@@ -121,13 +121,13 @@ const ServiceSelect = ({
             if (value) onChange('');
           }}
           onKeyDown={handleKeyDown}
-          className="min-w-0 flex-1 bg-transparent py-3.5 pl-2.5 pr-2 text-sm text-gray-900 outline-none placeholder:text-gray-400"
+          className="min-w-0 flex-1 bg-transparent py-4 pl-2.5 pr-2 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:py-3.5 sm:text-[15px]"
         />
         {query ? (
           <button
             type="button"
             aria-label="Clear service"
-            className="mr-2 flex h-7 w-7 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            className="mr-2 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700"
             onClick={() => {
               setQuery('');
               onChange('');
@@ -135,11 +135,11 @@ const ServiceSelect = ({
               inputRef.current?.focus();
             }}
           >
-            <HugeiconsIcon icon={Cancel01Icon} size={14} color="currentColor" strokeWidth={2} />
+            <HugeiconsIcon icon={Cancel01Icon} size={15} color="currentColor" strokeWidth={2} />
           </button>
         ) : (
           <span className="pr-3.5 text-gray-400">
-            <HugeiconsIcon icon={ArrowDown01Icon} size={16} color="currentColor" strokeWidth={2} />
+            <HugeiconsIcon icon={ArrowDown01Icon} size={18} color="currentColor" strokeWidth={2} />
           </span>
         )}
       </div>
