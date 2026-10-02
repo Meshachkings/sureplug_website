@@ -74,7 +74,7 @@ const TaskerDetail = () => {
   const shareTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || id === 'undefined') return;
     setLoading(true);
     setError('');
     const isObjectId = /^[0-9a-f]{24}$/i.test(id ?? '');
@@ -346,7 +346,7 @@ const TaskerDetail = () => {
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-gray-900">{service.title}</p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {service.categoryId.name}
+                            {service.categoryId?.name ?? 'Service'}
                             {service.reviewCount > 0 && (
                               <> · {service.reviewCount} review{service.reviewCount !== 1 ? 's' : ''}</>
                             )}

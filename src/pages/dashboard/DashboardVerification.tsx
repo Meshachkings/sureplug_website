@@ -27,6 +27,8 @@ interface PremiumStatus {
   canRenew: boolean;
   requiresPayment: boolean;
   monthlyAmount: number;
+  waitlistDiscountCode?: string;
+  waitlistDiscountPercent?: number;
   autoRenewEnabled: boolean;
   hasSavedPaymentMethod: boolean;
   isVerified: boolean;
@@ -156,6 +158,7 @@ export default function DashboardVerification() {
   const [pvError, setPvError] = useState('');
   const [pvInitLoading, setPvInitLoading] = useState(false);
   const [pvInitError, setPvInitError] = useState('');
+  const [pvDiscountCode, setPvDiscountCode] = useState('');
   const [pvRenewLoading, setPvRenewLoading] = useState(false);
   const [pvRenewError, setPvRenewError] = useState('');
   const [pvAutoRenewLoading, setPvAutoRenewLoading] = useState(false);
@@ -278,7 +281,17 @@ export default function DashboardVerification() {
     setPvInitLoading(true);
     setPvInitError('');
     try {
-      const res = await api.post<ApiResponse<{ authorization_url: string }>>('/verification/initialize', { callbackUrl: `${window.location.origin}/dashboard/verification` }, true);
+      const body: { callbackUrl: string; discountCode?: string } = {
+        callbackUrl: `${window.location.origin}/dashboard/verification`,
+      };
+      const code = pvDiscountCode.trim();
+      if (code) body.discountCode = code;
+
+      const res = await api.post<ApiResponse<{ authorization_url: string }>>(
+        '/verification/initialize',
+        body,
+        true
+      );
       window.location.href = res.data.authorization_url;
     } catch (err) {
       setPvInitError(err instanceof Error ? err.message : 'Failed to initialize payment');
@@ -408,6 +421,25 @@ export default function DashboardVerification() {
               ))}
             </div>
             {pvInitError && <p className="text-sm text-red-500 mb-3">{pvInitError}</p>}
+            <div className="mb-3">
+              <label htmlFor="pv-discount-code" className="block text-xs font-medium text-gray-500 mb-1.5">
+                Waitlist discount code <span className="font-normal text-gray-400">(optional)</span>
+              </label>
+              <input
+                id="pv-discount-code"
+                type="text"
+                autoComplete="off"
+                value={pvDiscountCode}
+                onChange={(e) => setPvDiscountCode(e.target.value.toUpperCase())}
+                placeholder={pv.waitlistDiscountCode ?? 'EARLYACCESS'}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm uppercase tracking-wide text-gray-900 outline-none transition-colors focus:border-[#019B5F] focus:ring-1 focus:ring-[#019B5F]/30"
+              />
+              {typeof pv.waitlistDiscountPercent === 'number' && pv.waitlistDiscountPercent > 0 && (
+                <p className="mt-1.5 text-xs text-gray-400">
+                  Valid waitlist codes save {pv.waitlistDiscountPercent}% on your first month.
+                </p>
+              )}
+            </div>
             <button onClick={pvInit} disabled={pvInitLoading} className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#019B5F] text-white text-sm font-semibold hover:bg-[#017a4c] transition-colors disabled:opacity-60">
               {pvInitLoading ? 'Redirecting…' : `Subscribe for ${formatNaira(monthlyAmount)}/mo`}
               {!pvInitLoading && <HugeiconsIcon icon={ArrowRight01Icon} size={14} color="white" strokeWidth={2.5} />}

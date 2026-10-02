@@ -10,50 +10,10 @@ import HeroHeader from '../components/HeroHeader';
 import TaskerCard from '../components/TaskerCard';
 import CtaBanner from '../components/CtaBanner';
 import { api, type ApiResponse, type ApiService } from '../lib/api';
+import { mapPublicServicesToTaskers } from '../lib/mapServiceToTasker';
 import type { Tasker } from '../data/taskers';
 
 type SortOption = 'rating-desc' | 'rating-asc';
-
-const AVATAR_PLACEHOLDER = (name: string) =>
-  `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=019B5F&color=fff&size=200`;
-
-const SERVICE_IMAGE_FALLBACK: Record<string, string> = {
-  Plumbing: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&h=280&fit=crop',
-  Cleaning: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=280&fit=crop',
-  Electrical: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=280&fit=crop',
-  Moving: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=280&fit=crop',
-  Assembly: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=280&fit=crop',
-  'Home Repair': 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&h=280&fit=crop',
-};
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=280&fit=crop';
-
-function mapServiceToTasker(service: ApiService): Tasker {
-  const providerName = `${service.provider.firstName} ${service.provider.lastName}`.trim();
-  const categoryName = (service.categoryId?.name ?? '').trim();
-  const avatarUrl =
-    service.images?.[0]?.url ||
-    service.categoryId?.image?.url ||
-    service.provider.avatar?.url ||
-    SERVICE_IMAGE_FALLBACK[categoryName] ||
-    AVATAR_PLACEHOLDER(providerName) ||
-    DEFAULT_IMAGE;
-
-  return {
-    id: service.provider.suretag || service.provider._id,
-    name: providerName,
-    role: service.title,
-    category: categoryName.trim(),
-    tags: categoryName ? [categoryName] : [],
-    image: avatarUrl,
-    rating: service.averageRating ?? 0,
-    reviews: service.reviewCount ?? 0,
-    price: service.price ?? 0,
-    location: service.state || 'Nigeria',
-    featured: (service.averageRating ?? 0) >= 4.5,
-    isPremium: service.provider.isPremium,
-    isVerified: Boolean(service.provider.isVerified || service.provider.businessVerified),
-  };
-}
 
 const Taskers = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,7 +38,7 @@ const Taskers = () => {
       const res = await api.get<ApiResponse<{ services: ApiService[] }>>(
         `/services/public?${params.toString()}`
       );
-      setServices(res.data.services.map(mapServiceToTasker));
+      setServices(mapPublicServicesToTaskers(res.data.services));
       setActiveCategory('All');
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : 'Failed to load services.');
@@ -233,7 +193,11 @@ const Taskers = () => {
         {!loading && !fetchError && filteredTaskers.length > 0 && (
           <div className="mt-4 sm:mt-8 lg:mt-10 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
             {filteredTaskers.map((tasker) => (
-              <TaskerCard key={`${tasker.id}-${tasker.role}`} tasker={tasker} variant="grid" />
+              <TaskerCard
+                key={tasker.serviceId ?? `${tasker.id}-${tasker.role}`}
+                tasker={tasker}
+                variant="grid"
+              />
             ))}
           </div>
         )}

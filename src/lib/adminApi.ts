@@ -261,5 +261,7 @@ export interface AdminWaitlistEntry {
   email: string;
   phone?: string;
   service?: string;
+  discountCode?: string;
+  discountRedeemedAt?: string | null;
   createdAt: string;
 }

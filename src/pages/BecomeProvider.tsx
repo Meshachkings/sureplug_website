@@ -58,6 +58,7 @@ export default function BecomeProvider() {
   // badge
   const [badgeLoading, setBadgeLoading] = useState(false);
   const [badgeAmount, setBadgeAmount] = useState(5000);
+  const [discountCode, setDiscountCode] = useState('');
 
   // track which email is pending verification
   const pendingEmail = useRef(email);
@@ -153,11 +154,13 @@ export default function BecomeProvider() {
     setError('');
     setBadgeLoading(true);
     try {
-      const res = await api.post<ApiResponse<{ authorization_url: string; reference: string; amount: number }>>(
-        '/verification/initialize',
-        {},
-        true
-      );
+      const body: { discountCode?: string } = {};
+      const code = discountCode.trim();
+      if (code) body.discountCode = code;
+
+      const res = await api.post<
+        ApiResponse<{ authorization_url: string; reference: string; amount: number }>
+      >('/verification/initialize', body, true);
       setBadgeAmount(res.data.amount);
       window.location.href = res.data.authorization_url;
     } catch (err) {
@@ -356,6 +359,24 @@ export default function BecomeProvider() {
               </li>
             ))}
           </ul>
+
+          <div>
+            <label htmlFor="discountCode" className="auth-label">
+              Waitlist discount code <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <input
+              id="discountCode"
+              type="text"
+              autoComplete="off"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+              placeholder="EARLYACCESS"
+              className="auth-input uppercase tracking-wide"
+            />
+            <p className="mt-1.5 text-xs text-gray-400">
+              Use the same email you joined the waitlist with.
+            </p>
+          </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 

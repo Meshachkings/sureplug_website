@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowUpRight01Icon,
+  Copy01Icon,
   Facebook01Icon,
   InstagramIcon,
   NewTwitterIcon,
   PinIcon,
+  Tick01Icon,
 } from '@hugeicons/core-free-icons';
 import { api, type ApiResponse } from '../lib/api';
 import ServiceSelect from '../components/ServiceSelect';
@@ -81,6 +83,8 @@ const Waitlist = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [joined, setJoined] = useState(false);
+  const [discountCode, setDiscountCode] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -91,16 +95,28 @@ const Waitlist = () => {
     }
     setLoading(true);
     try {
-      await api.post<ApiResponse<unknown>>('/waitlist', {
+      const res = await api.post<ApiResponse<{ discountCode?: string }>>('/waitlist', {
         email: email.trim(),
         phone: phone.trim(),
         service,
       });
+      setDiscountCode(res.data?.discountCode ?? 'EARLYACCESS');
       setJoined(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not join the waitlist. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCopyCode = async () => {
+    if (!discountCode) return;
+    try {
+      await navigator.clipboard.writeText(discountCode);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
     }
   };
 
@@ -184,10 +200,40 @@ const Waitlist = () => {
 
           <div className="mt-8 w-full max-w-[440px] sm:mt-9">
             {joined ? (
-              <p className="rounded-3xl bg-white px-6 py-5 text-sm leading-relaxed text-gray-600 shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
-                You&apos;re on the list. We&apos;ll write to{' '}
-                <span className="font-medium text-gray-900">{email}</span> when we launch.
-              </p>
+              <div className="rounded-3xl bg-white px-6 py-6 text-left shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
+                <p className="text-sm leading-relaxed text-gray-600">
+                  You&apos;re on the list. We&apos;ll write to{' '}
+                  <span className="font-medium text-gray-900">{email}</span> when we launch.
+                </p>
+                {discountCode && (
+                  <div className="mt-5 rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400">
+                      Your discount code
+                    </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <code className="flex-1 truncate text-lg font-semibold tracking-[0.08em] text-gray-900">
+                        {discountCode}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={handleCopyCode}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#111] px-3.5 text-xs font-medium text-white transition-colors hover:bg-black"
+                      >
+                        <HugeiconsIcon
+                          icon={copied ? Tick01Icon : Copy01Icon}
+                          size={14}
+                          color="currentColor"
+                          strokeWidth={2}
+                        />
+                        {copied ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-gray-500">
+                      Use this on your first Premium subscription for early-access pricing.
+                    </p>
+                  </div>
+                )}
+              </div>
             ) : (
               <form
                 onSubmit={handleSubmit}

@@ -1,5 +1,8 @@
 export type Tasker = {
+  /** Provider suretag or Mongo _id — used in `/taskers/:id` */
   id: string;
+  /** Public service listing id — unique per card when one provider has many services */
+  serviceId?: string;
   name: string;
   role: string;
   category: string;

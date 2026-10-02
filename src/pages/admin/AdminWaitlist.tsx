@@ -65,6 +65,22 @@ export default function AdminWaitlist() {
                     <span className="text-gray-500">{entry.service}</span>
                   )}
                 </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {entry.discountCode && (
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium tracking-wide text-gray-700">
+                      {entry.discountCode}
+                    </span>
+                  )}
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      entry.discountRedeemedAt
+                        ? 'bg-gray-100 text-gray-500'
+                        : 'bg-mint/10 text-mint'
+                    }`}
+                  >
+                    {entry.discountRedeemedAt ? 'Redeemed' : 'Available'}
+                  </span>
+                </div>
                 <p className="text-xs text-gray-400 mt-2">
                   {new Date(entry.createdAt).toLocaleDateString()}
                 </p>
@@ -81,6 +97,8 @@ export default function AdminWaitlist() {
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Service Interest</th>
+                    <th className="px-4 py-3 text-left">Discount Code</th>
+                    <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-left">Date</th>
                   </tr>
                 </thead>
@@ -90,6 +108,20 @@ export default function AdminWaitlist() {
                       <td className="px-4 py-3 text-gray-900">{entry.email}</td>
                       <td className="px-4 py-3 text-gray-600">{entry.phone ?? '—'}</td>
                       <td className="px-4 py-3 text-gray-600">{entry.service ?? '—'}</td>
+                      <td className="px-4 py-3 font-medium tracking-wide text-gray-800">
+                        {entry.discountCode ?? '—'}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            entry.discountRedeemedAt
+                              ? 'bg-gray-100 text-gray-500'
+                              : 'bg-mint/10 text-mint'
+                          }`}
+                        >
+                          {entry.discountRedeemedAt ? 'Redeemed' : 'Available'}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
                         {new Date(entry.createdAt).toLocaleDateString()}
                       </td>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { api, type ApiResponse, type ApiService } from '../lib/api';
+import { providerProfileRouteId } from '../lib/mapServiceToTasker';
 import { formatNaira } from '../lib/format';
 
 interface CarouselItem {
@@ -24,7 +25,10 @@ const CATEGORY_IMAGE: Record<string, string> = {
 };
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=800&fit=crop';
 
-function mapToCarouselItem(service: ApiService): CarouselItem {
+function mapToCarouselItem(service: ApiService): CarouselItem | null {
+  const profileId = providerProfileRouteId(service);
+  if (!profileId) return null;
+
   const categoryName = (service.categoryId?.name ?? '').trim();
   const image =
     service.images?.[0]?.url ||
@@ -33,7 +37,7 @@ function mapToCarouselItem(service: ApiService): CarouselItem {
     DEFAULT_IMAGE;
   return {
     id: service._id,
-    suretag: service.provider.suretag || service.provider._id,
+    suretag: profileId,
     title: service.title,
     price: service.price ?? 0,
     image,
@@ -48,7 +52,11 @@ const PopularServicesCarousel = () => {
   useEffect(() => {
     api
       .get<ApiResponse<{ services: ApiService[] }>>('/services/public?limit=6')
-      .then((res) => setItems(res.data.services.map(mapToCarouselItem)))
+      .then((res) =>
+        setItems(
+          res.data.services.map(mapToCarouselItem).filter((item): item is CarouselItem => item !== null)
+        )
+      )
       .catch(() => {});
   }, []);
 

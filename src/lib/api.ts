@@ -38,7 +38,7 @@ export interface ApiService {
     firstName: string;
     lastName: string;
     avatar?: { url: string };
-    suretag: string;
+    suretag?: string;
     isPremium?: boolean;
     premiumExpiresAt?: string | null;
     isVerified?: boolean;
@@ -71,7 +71,7 @@ export interface ApiProviderService {
   title: string;
   price: number;
   state?: string;
-  categoryId: { name: string };
+  categoryId?: { name: string };
   reviewCount: number;
   orderCount: number;
   averageRating: number;
