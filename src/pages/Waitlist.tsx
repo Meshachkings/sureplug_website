@@ -229,7 +229,7 @@ const Waitlist = () => {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="Your email here"
-                  className="w-full bg-transparent px-4 py-4 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:py-3.5 sm:text-[15px]"
+                  className="w-full appearance-none bg-transparent px-4 py-4 text-[16px] text-gray-900 outline-none placeholder:text-gray-400 [-webkit-text-size-adjust:100%]"
                 />
 
                 <div className="mx-4 h-px bg-gray-100" />
@@ -245,7 +245,7 @@ const Waitlist = () => {
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
                   placeholder="Phone number"
-                  className="w-full bg-transparent px-4 py-4 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:py-3.5 sm:text-[15px]"
+                  className="w-full appearance-none bg-transparent px-4 py-4 text-[16px] text-gray-900 outline-none placeholder:text-gray-400 [-webkit-text-size-adjust:100%]"
                 />
 
                 <div className="mx-4 h-px bg-gray-100" />

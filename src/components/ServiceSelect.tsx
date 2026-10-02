@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon, Cancel01Icon, Search01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
+import { ArrowDown01Icon, Cancel01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { serviceCategories } from '../data/serviceCategories';
 
 type ServiceSelectProps = {
@@ -96,9 +96,6 @@ const ServiceSelect = ({
         Service
       </label>
       <div className="flex items-center">
-        <span className="pl-4 text-gray-400">
-          <HugeiconsIcon icon={Search01Icon} size={18} color="currentColor" strokeWidth={2} />
-        </span>
         <input
           ref={inputRef}
           id={id}
@@ -121,7 +118,7 @@ const ServiceSelect = ({
             if (value) onChange('');
           }}
           onKeyDown={handleKeyDown}
-          className="min-w-0 flex-1 bg-transparent py-4 pl-2.5 pr-2 text-base text-gray-900 outline-none placeholder:text-gray-400 sm:py-3.5 sm:text-[15px]"
+          className="min-w-0 flex-1 appearance-none bg-transparent py-4 pl-4 pr-2 text-[16px] text-gray-900 outline-none placeholder:text-gray-400 [-webkit-text-size-adjust:100%]"
         />
         {query ? (
           <button
