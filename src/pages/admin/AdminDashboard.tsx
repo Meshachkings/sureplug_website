@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import type { IconSvgElement } from '@hugeicons/react';
 import {
@@ -12,47 +13,119 @@ import {
   MoneyReceive01Icon,
   UserIcon,
   UserAdd01Icon,
+  ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
 import { api, type ApiResponse } from '../../lib/adminApi';
 import type { AdminDashboardData } from '../../lib/adminApi';
 import { formatNaira } from '../../lib/format';
+import { useAuth } from '../../context/AuthContext';
 
-interface StatCardProps {
+type Tone = 'slate' | 'blue' | 'amber' | 'rose' | 'teal' | 'violet' | 'orange' | 'sky';
+
+const TONE_STYLES: Record<Tone, { icon: string; soft: string }> = {
+  slate:  { icon: 'bg-slate-900 text-white', soft: 'bg-slate-100 text-slate-700' },
+  blue:   { icon: 'bg-blue-600 text-white', soft: 'bg-blue-50 text-blue-700' },
+  amber:  { icon: 'bg-amber-500 text-white', soft: 'bg-amber-50 text-amber-700' },
+  rose:   { icon: 'bg-rose-500 text-white', soft: 'bg-rose-50 text-rose-700' },
+  teal:   { icon: 'bg-teal-600 text-white', soft: 'bg-teal-50 text-teal-700' },
+  violet: { icon: 'bg-violet-600 text-white', soft: 'bg-violet-50 text-violet-700' },
+  orange: { icon: 'bg-orange-500 text-white', soft: 'bg-orange-50 text-orange-700' },
+  sky:    { icon: 'bg-sky-600 text-white', soft: 'bg-sky-50 text-sky-700' },
+};
+
+interface MetricCardProps {
   label: string;
   value: string | number;
   sub?: string;
   icon: IconSvgElement;
-  color: string;
+  to?: string;
+  tone?: Tone;
+  featured?: boolean;
 }
 
-function StatCard({ label, value, sub, icon, color }: StatCardProps) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 hover:shadow-md hover:shadow-gray-100 transition-shadow duration-200">
-      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-        <HugeiconsIcon icon={icon} size={16} strokeWidth={1.75} color="white" />
+function MetricCard({ label, value, sub, icon, to, tone = 'slate', featured }: MetricCardProps) {
+  const styles = TONE_STYLES[tone];
+
+  const body = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div className={`inline-flex h-11 w-11 items-center justify-center rounded-xl ${featured ? 'bg-white/15 text-white' : styles.icon}`}>
+          <HugeiconsIcon icon={icon} size={18} strokeWidth={1.8} color="currentColor" />
+        </div>
+        {to && (
+          <span
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+              featured
+                ? 'bg-white/10 text-white/60 group-hover:bg-white/20 group-hover:text-white'
+                : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100 group-hover:text-slate-700'
+            }`}
+          >
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2.2} color="currentColor" />
+          </span>
+        )}
       </div>
-      <div className="min-w-0">
-        <p className="text-[10px] sm:text-[11px] text-gray-400 font-semibold uppercase tracking-[0.1em] mb-1 sm:mb-1.5 leading-none">{label}</p>
-        <p className="text-xl sm:text-[1.6rem] font-bold text-gray-900 leading-none tabular-nums">{value}</p>
-        {sub && <p className="text-[10px] sm:text-[11px] text-gray-400 mt-1 sm:mt-1.5 leading-snug">{sub}</p>}
+      <div className="mt-5 min-w-0">
+        <p className={`text-xs font-medium tracking-wide mb-1.5 ${featured ? 'text-white/55' : 'text-slate-400'}`}>
+          {label}
+        </p>
+        <p className={`text-[1.65rem] sm:text-[1.85rem] font-semibold tracking-tight tabular-nums leading-none ${featured ? 'text-white' : 'text-slate-900'}`}>
+          {value}
+        </p>
+        {sub && (
+          <p className={`mt-2.5 text-xs leading-snug ${featured ? 'text-white/45' : 'text-slate-400'}`}>
+            {sub}
+          </p>
+        )}
       </div>
-    </div>
+    </>
   );
+
+  const className = featured
+    ? 'group relative overflow-hidden rounded-2xl p-5 sm:p-6 text-left transition-transform duration-200 hover:-translate-y-0.5'
+    : 'group rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 text-left shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(15,23,42,0.07)]';
+
+  const inner = (
+    <>
+      {featured && (
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(145deg, #0f172a 0%, #1e293b 55%, #334155 100%)',
+          }}
+        />
+      )}
+      <div className="relative">{body}</div>
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {inner}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{inner}</div>;
 }
 
-function SkeletonCard() {
+function SkeletonCard({ featured }: { featured?: boolean }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-3.5 sm:p-5 flex items-start gap-3 sm:gap-4 animate-pulse">
-      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gray-100 flex-shrink-0" />
-      <div className="flex-1 space-y-2 pt-0.5">
-        <div className="h-2 bg-gray-100 rounded-full w-2/5" />
-        <div className="h-5 sm:h-7 bg-gray-100 rounded-lg w-1/3" />
-      </div>
+    <div
+      className={`rounded-2xl p-5 sm:p-6 animate-pulse ${
+        featured ? 'bg-slate-800' : 'border border-slate-200 bg-white'
+      }`}
+    >
+      <div className={`h-11 w-11 rounded-xl ${featured ? 'bg-white/10' : 'bg-slate-100'}`} />
+      <div className={`mt-6 h-3 w-1/3 rounded-full ${featured ? 'bg-white/10' : 'bg-slate-100'}`} />
+      <div className={`mt-3 h-8 w-1/2 rounded-lg ${featured ? 'bg-white/10' : 'bg-slate-100'}`} />
     </div>
   );
 }
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -67,12 +140,13 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-red-500 font-medium">{error}</p>
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="rounded-2xl border border-rose-100 bg-white px-8 py-10 text-center shadow-sm max-w-sm">
+          <p className="text-sm font-medium text-rose-600">{error}</p>
           <button
+            type="button"
             onClick={() => window.location.reload()}
-            className="mt-3 text-sm text-mint hover:text-mint-dark font-medium"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800 transition-colors"
           >
             Retry
           </button>
@@ -81,94 +155,171 @@ export default function AdminDashboard() {
     );
   }
 
+  const firstName = user?.firstName ?? 'Admin';
+
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-        {Array.from({ length: 11 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
+      <div className="space-y-7">
+        <div className="h-32 rounded-2xl bg-slate-200 animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} featured={i === 0} />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!data) return null;
 
-  const cards: StatCardProps[] = [
+  const highlights: MetricCardProps[] = [
     {
-      label: 'Total Users',
-      value: data.users.total.toLocaleString(),
-      icon: UserGroupIcon,
-      color: 'bg-blue-500',
+      label: 'Revenue',
+      value: formatNaira(data.revenue.total),
+      sub: 'All-time platform earnings',
+      icon: MoneyReceive01Icon,
+      featured: true,
+      to: '/admin/verifications',
     },
+    {
+      label: 'Bookings',
+      value: data.bookings.total.toLocaleString(),
+      sub: `${data.bookings.pending} pending · ${data.bookings.completed} completed`,
+      icon: Bookmark01Icon,
+      tone: 'blue',
+      to: '/admin/bookings',
+    },
+    {
+      label: 'Users',
+      value: data.users.total.toLocaleString(),
+      sub: `${data.users.newThisMonth} new this month`,
+      icon: UserGroupIcon,
+      tone: 'violet',
+      to: '/admin/users',
+    },
+    {
+      label: 'Services',
+      value: data.services.total.toLocaleString(),
+      sub: 'Live listings on the platform',
+      icon: Package01Icon,
+      tone: 'orange',
+      to: '/admin/services',
+    },
+  ];
+
+  const secondary: MetricCardProps[] = [
     {
       label: 'Plugs',
       value: data.users.providers.toLocaleString(),
       icon: UserIcon,
-      color: 'bg-purple-500',
+      tone: 'teal',
+      to: '/admin/users',
     },
     {
-      label: 'New This Month',
+      label: 'New this month',
       value: data.users.newThisMonth.toLocaleString(),
       icon: UserAdd01Icon,
-      color: 'bg-indigo-500',
-    },
-    {
-      label: 'Total Services',
-      value: data.services.total.toLocaleString(),
-      icon: Package01Icon,
-      color: 'bg-orange-500',
-    },
-    {
-      label: 'Total Bookings',
-      value: data.bookings.total.toLocaleString(),
-      sub: `${data.bookings.pending} pending · ${data.bookings.completed} completed`,
-      icon: Bookmark01Icon,
-      color: 'bg-mint',
-    },
-    {
-      label: 'Revenue',
-      value: formatNaira(data.revenue.total),
-      icon: MoneyReceive01Icon,
-      color: 'bg-emerald-600',
+      tone: 'sky',
+      to: '/admin/users',
     },
     {
       label: 'Reviews',
       value: data.reviews.total.toLocaleString(),
       icon: FavouriteIcon,
-      color: 'bg-yellow-500',
+      tone: 'amber',
+      to: '/admin/reviews',
     },
     {
       label: 'Verifications',
       value: data.verifications.total.toLocaleString(),
       sub: `${data.verifications.successful} successful`,
       icon: Certificate01Icon,
-      color: 'bg-teal-500',
+      tone: 'blue',
+      to: '/admin/verifications',
     },
     {
       label: 'Contacts',
       value: data.contacts.total.toLocaleString(),
       icon: Mail01Icon,
-      color: 'bg-pink-500',
+      tone: 'rose',
+      to: '/admin/contacts',
     },
     {
       label: 'Waitlist',
       value: data.waitlist.total.toLocaleString(),
       icon: Clock01Icon,
-      color: 'bg-gray-500',
+      tone: 'slate',
+      to: '/admin/waitlist',
     },
   ];
 
   return (
-    <div>
-      <div className="mb-4 sm:mb-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">Overview</h2>
-        <p className="text-xs sm:text-sm text-gray-400 mt-0.5">Platform activity at a glance</p>
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4">
-        {cards.map((card) => (
-          <StatCard key={card.label} {...card} />
-        ))}
-      </div>
+    <div className="space-y-7 sm:space-y-8">
+      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white px-5 py-6 sm:px-7 sm:py-7">
+        <div className="absolute inset-y-0 right-0 w-1/2 max-w-md opacity-[0.07] pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at 80% 20%, #334155 0%, transparent 55%)',
+          }}
+        />
+        <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div className="max-w-xl">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400 mb-2">
+              Overview
+            </p>
+            <h2 className="text-2xl sm:text-[1.85rem] font-semibold tracking-tight text-slate-900 leading-tight">
+              Welcome back, {firstName}
+            </h2>
+            <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+              Monitor platform health across users, bookings, and revenue from one place.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            <Link
+              to="/admin/bookings"
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800 transition-colors"
+            >
+              Review bookings
+              <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} color="currentColor" />
+            </Link>
+            <Link
+              to="/admin/waitlist"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              Waitlist
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-slate-900">Key metrics</h3>
+          <p className="text-xs text-slate-400 mt-1">Most important platform numbers</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {highlights.map((card) => (
+            <MetricCard key={card.label} {...card} />
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-slate-900">More activity</h3>
+          <p className="text-xs text-slate-400 mt-1">Jump into any area of the console</p>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {secondary.map((card) => (
+            <MetricCard key={card.label} {...card} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

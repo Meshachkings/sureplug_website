@@ -6,12 +6,13 @@ import {
   Package01Icon,
   Bookmark01Icon,
   FavouriteIcon,
+  Call02Icon,
+  Calendar03Icon,
 } from '@hugeicons/core-free-icons';
 import { ProviderBadges } from '../VerifiedBadge';
 import { isUserVerified } from '../../lib/disputes';
 import { api, type ApiResponse, type AdminUserDetail, type UserRole } from '../../lib/adminApi';
 import type { AdminUser } from '../../lib/adminApi';
-import StatusBadge from './StatusBadge';
 import RoleSelect from './RoleSelect';
 
 type Props = {
@@ -22,12 +23,31 @@ type Props = {
   onToggleBan: (user: AdminUser) => void;
 };
 
-function StatPill({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+const ROLE_LABEL: Record<string, string> = {
+  user: 'User',
+  seller: 'Seller',
+  subadmin: 'Subadmin',
+  admin: 'Admin',
+};
+
+function MetaRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: typeof Call02Icon;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="flex-1 flex flex-col items-center gap-1 bg-gray-50 rounded-xl py-3 px-2">
-      <div className="text-gray-400">{icon}</div>
-      <p className="text-base font-bold text-gray-900 tabular-nums">{value}</p>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">{label}</p>
+    <div className="flex items-center gap-3 px-1 py-2.5">
+      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400">
+        <HugeiconsIcon icon={icon} size={16} strokeWidth={1.8} color="currentColor" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] font-medium text-gray-400">{label}</p>
+        <p className="text-sm font-medium text-gray-900 truncate">{value}</p>
+      </div>
     </div>
   );
 }
@@ -55,145 +75,166 @@ export default function UserDetailModal({ user, onClose, onDelete, onRoleChange,
   }, [user._id]);
 
   const stats = detail?.stats;
+  const fullName = `${user.firstName} ${user.lastName}`.trim();
+  const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '?';
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/55 backdrop-blur-[6px]" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative z-10 w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden">
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-10 h-1 rounded-full bg-gray-200" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-start justify-between px-5 sm:px-6 pt-4 sm:pt-5 pb-4 border-b border-gray-100">
-          <div className="min-w-0 pr-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400 mb-1">User Details</p>
-            <h2 className="text-base font-semibold text-gray-900 leading-snug">
-              {user.firstName} {user.lastName}
-            </h2>
-          </div>
+      <div className="relative z-10 w-full sm:max-w-[420px] bg-white rounded-t-[1.75rem] sm:rounded-[1.75rem] shadow-[0_24px_80px_rgba(0,0,0,0.28)] flex flex-col max-h-[92vh] overflow-hidden">
+        {/* Soft top hero */}
+        <div className="relative shrink-0">
+          <div
+            className="h-28 sm:h-32"
+            style={{
+              background:
+                'radial-gradient(ellipse 90% 120% at 50% 0%, #2a5044 0%, transparent 60%), linear-gradient(180deg, #0f1c18 0%, #1a322c 100%)',
+            }}
+          />
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors shrink-0"
+            aria-label="Close"
+            className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-sm transition-colors hover:bg-white/20 hover:text-white"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} color="currentColor" />
           </button>
+
+          <div className="absolute left-1/2 top-[4.25rem] sm:top-[4.75rem] -translate-x-1/2">
+            <div className="relative">
+              {user.avatar?.url ? (
+                <img
+                  src={user.avatar.url}
+                  alt=""
+                  className="h-[88px] w-[88px] rounded-full object-cover ring-[3px] ring-white shadow-lg"
+                />
+              ) : (
+                <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-mint text-2xl font-bold text-white ring-[3px] ring-white shadow-lg">
+                  {initials}
+                </div>
+              )}
+              {user.isBlocked && (
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                  Blocked
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Body */}
-        <div className="px-5 sm:px-6 py-4 max-h-[60vh] overflow-y-auto space-y-4">
-          {/* Avatar + name */}
-          <div className="flex items-center gap-4">
-            {user.avatar?.url ? (
-              <img src={user.avatar.url} alt="" className="w-14 h-14 rounded-full object-cover shrink-0" />
-            ) : (
-              <div className="w-14 h-14 rounded-full bg-[#019B5F]/10 flex items-center justify-center text-[#019B5F] text-lg font-bold shrink-0">
-                {user.firstName[0]}{user.lastName[0]}
-              </div>
+        <div className="overflow-y-auto min-h-0 px-5 sm:px-6 pt-14 pb-5">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center gap-1.5">
+              <h2 className="text-xl font-semibold tracking-tight text-gray-900">{fullName}</h2>
+              <ProviderBadges isVerified={isUserVerified(user)} isPremium={user.isPremium} size={18} />
+            </div>
+            <p className="mt-1 text-sm text-gray-500">{user.email}</p>
+            {user.suretag && (
+              <p className="mt-0.5 text-xs font-medium text-mint">@{user.suretag}</p>
             )}
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <p className="text-base font-semibold text-gray-900">
-                  {user.firstName} {user.lastName}
-                </p>
-                <ProviderBadges isVerified={isUserVerified(user)} isPremium={user.isPremium} size={17} />
-              </div>
-              <p className="text-sm text-gray-400 truncate">{user.email}</p>
-              {user.suretag && (
-                <p className="text-xs text-gray-400 mt-0.5">@{user.suretag}</p>
+
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+              <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-600">
+                {ROLE_LABEL[user.role] ?? user.role}
+              </span>
+              {user.accountType && (
+                <span className="inline-flex items-center rounded-full bg-gray-50 px-2.5 py-1 text-[11px] font-medium capitalize text-gray-500">
+                  {user.accountType}
+                </span>
+              )}
+              {user.verified && (
+                <span className="inline-flex items-center rounded-full bg-mint/10 px-2.5 py-1 text-[11px] font-semibold text-mint">
+                  Email verified
+                </span>
+              )}
+              {user.isPremium && (
+                <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                  Premium
+                </span>
               )}
             </div>
           </div>
 
-          {/* Status badges */}
-          <div className="flex flex-wrap gap-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-              user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
-              user.role === 'seller' ? 'bg-blue-100 text-blue-700' :
-              'bg-gray-100 text-gray-600'
-            }`}>
-              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-            </span>
-            {user.verified && <StatusBadge status="email_verified" />}
-            {isUserVerified(user) && <StatusBadge status="verified" />}
-            {user.isPremium && <StatusBadge status="premium" />}
-            {user.isBlocked && <StatusBadge status="blocked" />}
-          </div>
-
-          {/* Stats row */}
-          {loading ? (
-            <div className="flex gap-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex-1 h-16 bg-gray-100 rounded-xl animate-pulse" />
-              ))}
-            </div>
-          ) : stats ? (
-            <div className="flex gap-2">
-              <StatPill
-                icon={<HugeiconsIcon icon={Package01Icon} size={15} strokeWidth={1.75} />}
-                label="Services"
-                value={stats.serviceCount}
-              />
-              <StatPill
-                icon={<HugeiconsIcon icon={Bookmark01Icon} size={15} strokeWidth={1.75} />}
-                label="Bookings"
-                value={stats.bookingCount}
-              />
-              <StatPill
-                icon={<HugeiconsIcon icon={FavouriteIcon} size={15} strokeWidth={1.75} />}
-                label="Reviews"
-                value={stats.reviewCount}
-              />
-            </div>
-          ) : null}
-
-          {/* Info rows */}
-          <div className="divide-y divide-gray-100 rounded-xl border border-gray-100 overflow-hidden">
-            {user.phone && (
-              <div className="flex items-center justify-between px-3 py-2.5 bg-white">
-                <span className="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Phone</span>
-                <span className="text-sm text-gray-900">{user.phone}</span>
+          {/* Stats */}
+          <div className="mt-5 rounded-2xl border border-gray-100 bg-gray-50/70 p-1">
+            {loading ? (
+              <div className="grid grid-cols-3 gap-1">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-[72px] rounded-xl bg-white/70 animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-1">
+                {[
+                  { icon: Package01Icon, label: 'Services', value: stats?.serviceCount ?? 0 },
+                  { icon: Bookmark01Icon, label: 'Bookings', value: stats?.bookingCount ?? 0 },
+                  { icon: FavouriteIcon, label: 'Reviews', value: stats?.reviewCount ?? 0 },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white px-2 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+                  >
+                    <HugeiconsIcon icon={item.icon} size={15} strokeWidth={1.8} color="#9ca3af" />
+                    <p className="text-lg font-semibold tabular-nums leading-none text-gray-900">{item.value}</p>
+                    <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-gray-400">{item.label}</p>
+                  </div>
+                ))}
               </div>
             )}
-            <div className="flex items-center justify-between px-3 py-2.5 bg-white">
-              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Joined</span>
-              <span className="text-sm text-gray-900">
-                {new Date(user.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </span>
-            </div>
+          </div>
+
+          {/* Meta */}
+          <div className="mt-4 divide-y divide-gray-100">
+            {user.phone && <MetaRow icon={Call02Icon} label="Phone" value={user.phone} />}
+            <MetaRow
+              icon={Calendar03Icon}
+              label="Joined"
+              value={new Date(user.createdAt).toLocaleDateString('en-NG', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-5 sm:px-6 py-4 border-t border-gray-100 space-y-2.5">
-          <div className="flex gap-2">
+        <div className="shrink-0 border-t border-gray-100 bg-white/95 px-5 sm:px-6 py-4 backdrop-blur-sm">
+          <div className="grid grid-cols-[1fr_auto] gap-2.5">
             <RoleSelect
               value={user.role}
               onChange={(role) => onRoleChange(user._id, role)}
+              className="w-full"
             />
             <button
+              type="button"
               onClick={() => onToggleBan(user)}
-              className={`flex-1 px-3 py-2.5 text-sm rounded-xl font-medium transition-colors ${
+              className={`min-w-[96px] rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
                 user.isBlocked
-                  ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                  : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100'
+                  ? 'bg-mint/10 text-mint hover:bg-mint/15'
+                  : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
               }`}
             >
               {user.isBlocked ? 'Unblock' : 'Block'}
             </button>
           </div>
-          <div className="flex gap-2">
+          <div className="mt-2.5 grid grid-cols-2 gap-2.5">
             <button
+              type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
             >
               Close
             </button>
             <button
-              onClick={() => { onDelete(user); onClose(); }}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors"
+              type="button"
+              onClick={() => {
+                onDelete(user);
+                onClose();
+              }}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-600"
             >
               <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={2} color="currentColor" />
               Delete
@@ -201,7 +242,7 @@ export default function UserDetailModal({ user, onClose, onDelete, onRoleChange,
           </div>
         </div>
 
-        <div className="h-[env(safe-area-inset-bottom)] bg-white sm:hidden" />
+        <div className="h-[env(safe-area-inset-bottom)] bg-white sm:hidden shrink-0" />
       </div>
     </div>
   );

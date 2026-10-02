@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon, ArrowDown01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 
@@ -14,25 +15,77 @@ interface FilterSelectProps {
   placeholder?: string;
 }
 
+type MenuPosition = {
+  left: number;
+  top: number;
+  minWidth: number;
+  placement: 'up' | 'down';
+};
+
 export function FilterSelect({ value, options, onChange }: FilterSelectProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const selected = options.find((o) => o.value === value) ?? options[0];
   const isDefault = value === '' || value === options[0]?.value;
 
+  useLayoutEffect(() => {
+    if (!open || !buttonRef.current) return;
+
+    const updatePosition = () => {
+      if (!buttonRef.current) return;
+      const rect = buttonRef.current.getBoundingClientRect();
+      const menuHeight = menuRef.current?.offsetHeight ?? 220;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const placement: 'up' | 'down' =
+        spaceBelow < menuHeight + 12 && rect.top > spaceBelow ? 'up' : 'down';
+
+      setMenuPosition({
+        left: Math.min(rect.left, window.innerWidth - Math.max(rect.width, 160) - 8),
+        top: placement === 'up' ? rect.top - 6 : rect.bottom + 6,
+        minWidth: Math.max(rect.width, 160),
+        placement,
+      });
+    };
+
+    updatePosition();
+    requestAnimationFrame(updatePosition);
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [open]);
+
   useEffect(() => {
+    if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (rootRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
     };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={rootRef} className="relative">
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
         className={`flex items-center gap-2 pl-3.5 pr-2.5 py-2.5 rounded-xl text-sm font-medium border transition-colors whitespace-nowrap ${
           isDefault
             ? 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
@@ -49,30 +102,50 @@ export function FilterSelect({ value, options, onChange }: FilterSelectProps) {
         />
       </button>
 
-      {open && (
-        <div className="absolute left-0 top-full mt-1.5 z-30 min-w-[160px] bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden">
-          {options.map((opt) => {
-            const active = opt.value === value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => { onChange(opt.value); setOpen(false); }}
-                className={`w-full flex items-center justify-between gap-3 px-3.5 py-2 text-sm text-left transition-colors ${
-                  active
-                    ? 'bg-[#019B5F]/8 text-[#019B5F] font-medium'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <span>{opt.label}</span>
-                {active && (
-                  <HugeiconsIcon icon={Tick01Icon} size={13} strokeWidth={2.5} color="currentColor" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="listbox"
+            style={{
+              position: 'fixed',
+              left: menuPosition?.left ?? 0,
+              top: menuPosition?.top ?? 0,
+              minWidth: menuPosition?.minWidth ?? 160,
+              transform: menuPosition?.placement === 'up' ? 'translateY(-100%)' : undefined,
+              zIndex: 10000,
+              visibility: menuPosition ? 'visible' : 'hidden',
+            }}
+            className="bg-white rounded-xl shadow-xl border border-gray-100 py-1 max-h-64 overflow-y-auto"
+          >
+            {options.map((opt) => {
+              const active = opt.value === value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between gap-3 px-3.5 py-2.5 text-sm text-left transition-colors ${
+                    active
+                      ? 'bg-[#019B5F]/8 text-[#019B5F] font-medium'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {active && (
+                    <HugeiconsIcon icon={Tick01Icon} size={13} strokeWidth={2.5} color="currentColor" />
+                  )}
+                </button>
+              );
+            })}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

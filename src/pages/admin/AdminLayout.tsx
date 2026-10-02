@@ -18,6 +18,7 @@ import {
   Logout01Icon,
   Menu01Icon,
   Cancel01Icon,
+  ArrowUpRight01Icon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '../../context/AuthContext';
 import { api, type ApiResponse, type ApiPagination } from '../../lib/adminApi';
@@ -68,7 +69,6 @@ export default function AdminLayout() {
     navigate('/login');
   };
 
-  // For subadmins: fetch permissions from the staff list if not already in the user object
   useEffect(() => {
     if (user?.role !== 'subadmin' || user?.permissions?.length) return;
     api.get<ApiResponse<{ staff: Array<{ _id: string; permissions: string[] }>; pagination: ApiPagination }>>(
@@ -88,18 +88,16 @@ export default function AdminLayout() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="px-5 pt-6 pb-5">
+      <div className="px-5 pt-6 pb-5 border-b border-white/[0.06]">
         <Link to="/admin" onClick={close} className="inline-block">
-          <img src={LOGO_WHITE} alt="SurePlug" className="h-7 w-auto" />
+          <img src={LOGO_WHITE} alt="SurePlug" className="h-7 w-auto opacity-95" />
         </Link>
-        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/25 pl-0.5">
+        <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500">
           Admin Console
         </p>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {visibleNavItems.map(({ label, to, icon }) => (
           <NavLink
             key={to}
@@ -107,10 +105,10 @@ export default function AdminLayout() {
             end={to === '/admin'}
             onClick={close}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 ${
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-[13px] font-medium transition-colors duration-150 ${
                 isActive
-                  ? 'bg-[#019B5F] text-white shadow-sm shadow-[#019B5F]/30'
-                  : 'text-white/50 hover:text-white hover:bg-white/8'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.05]'
               }`
             }
           >
@@ -118,37 +116,37 @@ export default function AdminLayout() {
               <>
                 <HugeiconsIcon
                   icon={icon}
-                  size={16}
+                  size={17}
                   strokeWidth={isActive ? 2 : 1.75}
                   color="currentColor"
                 />
-                {label}
+                <span className="truncate">{label}</span>
               </>
             )}
           </NavLink>
         ))}
       </nav>
 
-      {/* User + Logout */}
-      <div className="px-3 pb-5 pt-3 border-t border-white/8">
+      <div className="px-3 pb-5 pt-3 border-t border-white/[0.06]">
         {user && (
-          <div className="flex items-center gap-2.5 px-3 py-2.5 mb-1">
-            <div className="w-7 h-7 rounded-full bg-[#019B5F]/30 flex items-center justify-center shrink-0 text-[11px] font-bold text-[#019B5F]">
+          <div className="flex items-center gap-3 px-2.5 py-2 mb-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-slate-200 shrink-0">
               {user.firstName?.[0]?.toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="text-[12px] font-semibold text-white/80 truncate">
+              <p className="text-[13px] font-medium text-slate-200 truncate">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-[10px] text-white/35 truncate">{user.email}</p>
+              <p className="text-[11px] text-slate-500 truncate capitalize">{user.role}</p>
             </div>
           </div>
         )}
         <button
+          type="button"
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-[13px] font-medium text-white/40 hover:text-white hover:bg-white/8 transition-colors"
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2.5 text-[13px] font-medium text-slate-400 transition-colors hover:border-white/20 hover:bg-white/[0.04] hover:text-slate-200"
         >
-          <HugeiconsIcon icon={Logout01Icon} size={16} strokeWidth={1.75} color="currentColor" />
+          <HugeiconsIcon icon={Logout01Icon} size={15} strokeWidth={1.75} color="currentColor" />
           Sign out
         </button>
       </div>
@@ -156,21 +154,19 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="flex h-screen bg-[#f5f5f7] overflow-hidden">
-
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-56 lg:w-60 flex-shrink-0 flex-col bg-[#0d1a13]">
+    <div className="flex h-screen overflow-hidden bg-[#eef0f3]">
+      <aside className="hidden md:flex w-60 lg:w-64 flex-shrink-0 flex-col bg-[#111827]">
         <SidebarContent />
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 flex md:hidden">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={close} />
-          <aside className="relative flex flex-col w-64 bg-[#0d1a13] z-50">
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-sm" onClick={close} />
+          <aside className="relative flex flex-col w-[280px] bg-[#111827] z-50 shadow-2xl">
             <button
+              type="button"
               onClick={close}
-              className="absolute top-4 right-4 p-1.5 rounded-full text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} color="currentColor" />
             </button>
@@ -179,47 +175,46 @@ export default function AdminLayout() {
         </div>
       )}
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-
-        {/* Top bar */}
-        <header className="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-white border-b border-gray-200/70 flex-shrink-0">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 bg-white border-b border-slate-200/80 flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
             <button
+              type="button"
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
             >
-              <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={1.75} color="currentColor" />
+              <HugeiconsIcon icon={Menu01Icon} size={18} strokeWidth={1.75} color="currentColor" />
             </button>
-            <div>
-              <h1 className="text-[15px] font-semibold text-gray-900 leading-none">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-[17px] font-semibold tracking-tight text-slate-900 leading-none truncate">
                 {getPageTitle(location.pathname)}
               </h1>
-              <p className="hidden sm:block text-[11px] text-gray-400 mt-0.5">
+              <p className="hidden sm:block text-xs text-slate-400 mt-1">
                 SurePlug Admin Console
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <Link
               to="/"
               target="_blank"
-              className="hidden sm:inline-flex text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
             >
-              View site →
+              View site
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2} color="currentColor" />
             </Link>
             <button
+              type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-900 border border-gray-200 rounded-full px-3 py-1.5 hover:border-gray-300 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
             >
-              <HugeiconsIcon icon={Logout01Icon} size={13} strokeWidth={2} color="currentColor" />
+              <HugeiconsIcon icon={Logout01Icon} size={15} strokeWidth={2} color="currentColor" />
               Sign out
             </button>
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>

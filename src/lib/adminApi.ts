@@ -121,18 +121,41 @@ export type BookingStatus =
 export interface AdminBooking {
   _id: string;
   status: BookingStatus;
+  description?: string;
   note?: string;
+  /** @deprecated prefer date / time */
   scheduledDate?: string;
+  date?: string;
+  time?: string;
+  address?: string;
   createdAt: string;
+  updatedAt?: string;
+  attachments?: Array<{
+    path: string;
+    filename?: string;
+    size?: number;
+    mimetype?: string;
+    _id?: string;
+  }>;
   user?: {
+    _id?: string;
     firstName: string;
     lastName: string;
     email: string;
     phone?: string;
+    suretag?: string;
+    avatar?: { url: string } | null;
+    accountType?: string;
   };
   service?: {
+    _id?: string;
     title: string;
-    price: number;
+    price?: number;
+    description?: string;
+    address?: string;
+    state?: string;
+    country?: string;
+    images?: Array<{ url: string; _id?: string }>;
   };
 }
 
@@ -143,12 +166,20 @@ export interface AdminReview {
   rating: number;
   comment: string;
   createdAt: string;
+  updatedAt?: string;
   user: {
+    _id?: string;
     firstName: string;
     lastName: string;
     email: string;
+    suretag?: string;
+    avatar?: { url: string } | null;
   } | null;
-  service: { title: string } | null;
+  service: {
+    _id?: string;
+    title: string;
+    images?: Array<{ url: string; _id?: string }>;
+  } | null;
 }
 
 // ── Verifications ─────────────────────────────────────────────────────────────
