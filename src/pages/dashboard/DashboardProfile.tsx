@@ -287,7 +287,7 @@ export default function DashboardProfile() {
         <Section title="Your plug tag">
           <p className="text-sm text-gray-500 mb-4 leading-relaxed">
             Your suretag is your public handle — customers can find you at{' '}
-            <span className="font-mono text-gray-700">sureplug.com/p/{suretag || 'yourtag'}</span>.
+            <span className="font-mono text-gray-700">www.sureplug.app/p/{suretag || 'yourtag'}</span>.
           </p>
           <form onSubmit={handleSuretagSubmit} className="flex gap-2">
             <div className="flex-1 flex items-center bg-white border border-gray-200 rounded-xl px-3 focus-within:ring-2 focus-within:ring-[#019B5F]/30 focus-within:border-[#019B5F] transition-all">

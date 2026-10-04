@@ -421,7 +421,7 @@ const TaskerDetail = () => {
               </div>
               {provider.suretag && (
                 <p className="mt-3 text-xs text-gray-500">
-                  Share: sureplug.com/p/{provider.suretag}
+                  Share: www.sureplug.app/p/{provider.suretag}
                 </p>
               )}
             </section>

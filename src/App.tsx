@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { BookingModalProvider } from './context/BookingModalContext'
+import SeoManager from './components/SeoManager'
 import LandingPage from './pages/LandingPage'
 import Waitlist from './pages/Waitlist'
 import { WAITLIST_MODE } from './lib/flags'
@@ -45,6 +46,7 @@ function App() {
     <AuthProvider>
     <BookingModalProvider>
     <Router>
+      <SeoManager />
       <div className="app">
         <main>
           <Routes>
